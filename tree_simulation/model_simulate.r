@@ -2,8 +2,8 @@ model_simulator <- function(obj) {
   if (!inherits(obj, "human_genealogy")) {
     stop("Object must be of class 'human_genealogy'")
   }
-  recomb_rate <- as.numeric(obj$items$recomb_rate)
-  mutation_rate <- as.numeric(obj$items$mutation_rate)
+  recomb_rate <- ifelse(is.null(obj$items$recomb_rate), 0, obj$items$recomb_rate)
+  mutation_rate <- ifelse(is.null(obj$items$mutation_rate), 0, obj$items$obj$items$mutation_rate)
   rho <- 2*obj$N*recomb_rate
   theta <- 2*obj$N*mutation_rate
   j <- obj$n
@@ -16,7 +16,8 @@ model_simulator <- function(obj) {
       pick_two <- sample(obj$items$tree[[tree_i]], 2)
       coale_lineage <- as.list(c(as.numeric(pick_two[[1]]),
                                  as.numeric(pick_two[[2]])))
-      tree_c <- setdiff(obj$items$tree[[tree_i]], coale_lineage)
+      tree_c <- setdiff(obj$items$tree[[tree_i]], list(pick_two[[1]]))
+      tree_c <- setdiff(tree_c, list(pick_two[[2]]))
       obj$items$tree[[tree_i+1]] <- append(tree_c, list(coale_lineage))
       tree_i <- tree_i + 1
       j <- j - 1
@@ -40,4 +41,5 @@ model_simulator <- function(obj) {
                                 list(list(t, pick_one, mutation_position)))
     }
   }
+  return(obj)
 }
