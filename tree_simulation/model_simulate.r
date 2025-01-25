@@ -28,7 +28,7 @@ model_simulator <- function(obj) {
       pick_one <- sample(obj$items$tree[[tree_i]], 1)
       recomb_lineage <- as.list(c(as.numeric(pick_one[[1]]),
                                   obj$n + 1 + length(obj$items$coale_event)))
-      tree_c <- setdiff(obj$items$tree[[tree_i]], pick_one)
+      tree_c <- setdiff(obj$items$tree[[tree_i]], list(pick_one))
       obj$items$tree[[tree_i+1]] <- append(tree_c, list(recomb_lineage))
       tree_i <- tree_i + 1
       j <- j + 1
