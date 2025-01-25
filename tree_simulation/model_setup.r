@@ -1,8 +1,10 @@
-coale_model <- function(sample_size) {
-  if (sample_size!=as.integer(sample_size)) {
-    stop("Sample size must be an integer")
+coale_model <- function(sample_size, pop_size) {
+  if (sample_size!=as.integer(sample_size) | pop_size!=as.integer(pop_size)) {
+    stop("Sample size and population size must be integers")
   }
-  coale_list <- list(n=sample_size, items=list(coale_event=list()))
+  coale_list <- list(n=sample_size, N=pop_size,
+                     items=list(coale_event=list(),
+                     tree=as.list(1:sample_size)))
   class(coale_list) <- "human_genealogy"
   return(coale_list)
 }
