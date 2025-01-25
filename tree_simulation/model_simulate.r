@@ -12,6 +12,8 @@ model_simulator <- function(obj) {
     exp_rate <- j * ((j-1) + rho + theta) / 2
     t <- rexp(1, rate = exp_rate)
     event <- sample(1:3, 1, prob = c((j-1), rho, theta))
+    print(c(tree_i, j))
+    print(obj$items$tree[[tree_i]])
     if (event==1) {
       pick_two <- sample(obj$items$tree[[tree_i]], 2)
       coale_lineage <- as.list(c(as.numeric(pick_two[[1]]),
@@ -26,14 +28,13 @@ model_simulator <- function(obj) {
     } else if (event==2) {
       recomb_position <- runif(1)
       pick_one <- sample(obj$items$tree[[tree_i]], 1)
-      recomb_lineage <- as.list(c(as.numeric(pick_one[[1]]),
-                                  obj$n + 1 + length(obj$items$coale_event)))
-      tree_c <- setdiff(obj$items$tree[[tree_i]], list(pick_one))
-      obj$items$tree[[tree_i+1]] <- append(tree_c, list(recomb_lineage))
+      recomb_lineage <- as.list(c(obj$n + 1 + length(obj$items$recomb_event)))
+      obj$items$tree[[tree_i+1]] <- append(obj$items$tree[[tree_i]],
+                                           list(recomb_lineage))
       tree_i <- tree_i + 1
       j <- j + 1
       obj$items$recomb_event <- append(obj$items$recomb_event,
-                              list(list(t, recomb_lineage, recomb_position)))
+                              list(list(t, pick_one, recomb_position)))
     } else {
       mutation_position <- runif(1)
       pick_one <- sample(obj$items$tree[[tree_i]], 1)
