@@ -3,7 +3,7 @@ model_simulator <- function(obj) {
     stop("Object must be of class 'human_genealogy'")
   }
   recomb_rate <- ifelse(is.null(obj$items$recomb_rate), 0, obj$items$recomb_rate)
-  mutation_rate <- ifelse(is.null(obj$items$mutation_rate), 0, obj$items$obj$items$mutation_rate)
+  mutation_rate <- ifelse(is.null(obj$items$mutation_rate), 0, obj$items$mutation_rate)
   rho <- 2*obj$N*recomb_rate
   theta <- 2*obj$N*mutation_rate
   j <- obj$n
@@ -12,8 +12,6 @@ model_simulator <- function(obj) {
     exp_rate <- j * ((j-1) + rho + theta) / 2
     t <- rexp(1, rate = exp_rate)
     event <- sample(1:3, 1, prob = c((j-1), rho, theta))
-    print(c(tree_i, j))
-    print(obj$items$tree[[tree_i]])
     if (event==1) {
       pick_two <- sample(obj$items$tree[[tree_i]], 2)
       coale_lineage <- as.list(c(as.numeric(pick_two[[1]]),

@@ -4,7 +4,7 @@ coale_model <- function(sample_size, pop_size) {
   }
   coale_list <- list(n=sample_size, N=pop_size,
                      items=list(coale_event=list(),
-                     tree=as.list(1:sample_size)))
+                     tree=list(as.list(1:sample_size))))
   class(coale_list) <- "human_genealogy"
   return(coale_list)
 }
