@@ -17,3 +17,7 @@ sim_sumstat <- create_abc_sumstat(sim_data, model)
 posterior <- abc(sfs, sim_param, sim_sumstat, 0.05, method = "rejection")
 print(posterior)
 hist(posterior, breaks = 20)
+
+abc_basic_list <- abc_basic(sfs, sim_param, sim_sumstat, 50, kernel='uniform')
+abc_basic_list <- abc_basic(sfs, sim_param, sim_sumstat, 50,
+                            kernel='Gaussian', sigma=1)
