@@ -1,6 +1,6 @@
 abc_basic <- function(obs, param, sumstat, tol, kernel='uniform', sigma=NULL) {
   weights <- c()
-  n <- dim(sim_param)[1]
+  n <- dim(param)[1]
   if (kernel=='uniform') {
     for (i in 1:n) {
       k <- uniform_kernel(obs, as.numeric(sumstat[i, ]), tol)
@@ -13,7 +13,8 @@ abc_basic <- function(obs, param, sumstat, tol, kernel='uniform', sigma=NULL) {
     }
   }
 
-  abc_list <- list(param=param, sumstat=sumstat, weights=weights, obs=obs,
+  abc_list <- list(param=param, sumstat=sumstat, weights=weights,
+                   posterior=param*weights, obs=obs,
                    tol=tol, kernel=kernel, sigma=sigma)
   class(abc_list) <- "abc_list"
   return(abc_list)

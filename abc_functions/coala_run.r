@@ -18,6 +18,7 @@ posterior <- abc(sfs, sim_param, sim_sumstat, 0.05, method = "rejection")
 print(posterior)
 hist(posterior, breaks = 20)
 
-abc_basic_list <- abc_basic(sfs, sim_param, sim_sumstat, 50, kernel='uniform')
-abc_basic_list <- abc_basic(sfs, sim_param, sim_sumstat, 50,
-                            kernel='Gaussian', sigma=1)
+abc_basic_list <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
+                            kernel='uniform')
+abc_basic_list <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
+                            kernel='Gaussian', sigma=diag(rep(1, 9)))
