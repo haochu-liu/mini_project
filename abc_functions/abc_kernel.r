@@ -11,6 +11,7 @@ uniform_kernel <- function(obs, sumstat, tol) {
 }
 
 Gaussian_kernel <- function(obs, sumstat, tol, sigma) {
+  sigma <- diag(sigma)
   p <- dmvnorm(sumstat, mean=obs, sigma=tol*sigma)
   return(p)
 }
