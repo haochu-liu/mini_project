@@ -13,6 +13,7 @@ abc_basic <- function(obs, param, sumstat, tol, kernel='uniform', sigma=NULL) {
     }
   }
 
+  weights <- weights / sum(weights)
   abc_list <- list(param=param, sumstat=sumstat, weights=weights, obs=obs,
                    tol=tol, kernel=kernel, sigma=sigma)
   class(abc_list) <- "abc_list"

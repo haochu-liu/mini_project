@@ -1,5 +1,7 @@
 library(coala)
 library(abc)
+source("abc_functions/abc_kernel.r")
+source("abc_functions/abc_basic.r")
 
 
 sfs <- c(112, 57, 24, 34, 16, 29, 8, 10, 15)
@@ -20,5 +22,7 @@ hist(posterior, breaks = 20)
 
 abc_basic_list <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
                             kernel='uniform')
+plot(abc_basic_list$param[, 1], abc_basic_list$weights)
 abc_basic_list <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
                             kernel='Gaussian', sigma=rep(1, 9))
+plot(abc_basic_list$param[, 1], abc_basic_list$weights)
