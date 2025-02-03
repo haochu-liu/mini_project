@@ -17,7 +17,6 @@ abc_IEnKI <- function(obs, param, sumstat, epsilon, sigma) {
     gamma_t <- e^(-2) / (epsilon[t]^(-2) - epsilon[t-1]^(-2))
     K_t <- C_t %*% solve(C_t + gamma_t*sigma)
     for (j in 1:M) {
-      print(c(t, j))
       s_t <- rmvnorm(1, mean=S[, j], sigma=gamma_t*sigma)
       s_t <- t(s_t)
       S[, j] <- S[, j] + K_t %*% (S_obs - s_t)
