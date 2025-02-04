@@ -2,8 +2,10 @@ model_simulator <- function(obj) {
   if (!inherits(obj, "human_genealogy")) {
     stop("Object must be of class 'human_genealogy'")
   }
-  recomb_rate <- ifelse(is.null(obj$items$recomb_rate), 0, obj$items$recomb_rate)
-  mutation_rate <- ifelse(is.null(obj$items$mutation_rate), 0, obj$items$mutation_rate)
+  recomb_rate <- ifelse(is.null(obj$items$recomb_rate), 0,
+                        obj$items$recomb_rate)
+  mutation_rate <- ifelse(is.null(obj$items$mutation_rate), 0,
+                          obj$items$mutation_rate)
   rho <- 2*obj$N*recomb_rate
   theta <- 2*obj$N*mutation_rate
   j <- obj$n
