@@ -12,13 +12,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The files `abc_kernel.r`, `abc_basic.r` and `abc_IEnKI.r` include functions written by myself.
 
-```{r echo=FALSE}
+```{r load, echo=FALSE}
 library(coala)
 library(ggplot2)
 library(patchwork)
-source("abc_functions/abc_kernel.r")
-source("abc_functions/abc_basic.r")
-source("abc_functions/abc_IEnKI.r")
+source("abc_kernel.r")
+source("abc_basic.r")
+source("abc_IEnKI.r")
 ```
 
 ## Coala model
@@ -65,16 +65,16 @@ epsilon <- 10^(seq(from=10, to=-2, by=-1))
 Sigma <- diag(rep(1, length(sfs)))
 abc_IEnKI_list <- abc_IEnKI(sfs, matrix(sim_param$theta),
                             as.matrix(sim_sumstat), epsilon, Sigma)
-pdf_values <- dnorm(abc_IEnKI_list$sumstat[, 1],
-                    mean=abc_IEnKI_list$mu_T[1], sd=abc_IEnKI_list$C_T[1, 1])
 ```
 
 ## Vaisualsation
 
 We compare the ABC methods by plotting their given distributions for summary statistics.
 
-```{r plot, fig.width=30, fig.height=30}
+```{r plot, fig.width=30, fig.height=18}
 plots <- lapply(1:9, function(i) {
+  pdf_values <- dnorm(abc_IEnKI_list$sumstat[, i],
+                      mean=abc_IEnKI_list$mu_T[i], sd=abc_IEnKI_list$C_T[i, i])
   abc_df <- data.frame(
     x = rep(sim_sumstat[, i], 3),
     y = c(basic_uniform$weights, basic_gaussian$weights, pdf_values),
@@ -86,11 +86,13 @@ plots <- lapply(1:9, function(i) {
     geom_point(data=subset(abc_df, type != "ABC-IEnKI"), size=3, alpha=0.5) +
     geom_line(data=subset(abc_df, type == "ABC-IEnKI"), linewidth=1.2) +
     scale_color_manual(values=c("red", "blue", "green")) +
-    labs(title="ABC methods", x=colnames(sim_sumstat)[i], y="f(s|param)") +
+    labs(x=colnames(sim_sumstat)[i], y="f(s|param)") +
     theme_minimal()
 })
 
-wrap_plots(plots, ncol = 3)
+wrap_plots(plots, ncol = 3) +
+  plot_annotation(title="ABC methods",
+                  theme=theme(plot.title=element_text(size=25)))
 ```
 
 
