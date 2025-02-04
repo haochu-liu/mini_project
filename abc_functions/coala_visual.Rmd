@@ -81,15 +81,13 @@ abc_df <- data.frame(
 )
 
 ggplot(abc_df, aes(x = x, y = y, color = type)) +
-  geom_point(data = subset(abc_df, type != "ABC-IEnKI"), size = 3) +
-  geom_line(data = subset(abc_df, type == "ABC-IEnKI"), size = 1.2) +
-  scale_color_manual(values = c("red", "blue", "black")) +
+  geom_point(data = subset(abc_df, type != "ABC-IEnKI"), size = 3, alpha=0.5) +
+  geom_line(data = subset(abc_df, type == "ABC-IEnKI"), linewidth = 1.2) +
+  scale_color_manual(values = c("red", "blue", "green")) +
   labs(title = "ABC methods", x = "X-axis", y = "Y-axis") +
   theme_minimal()
 
-plot(sim_sumstat[, 1], basic_uniform$weights)
-plot(sim_sumstat[, 1], basic_gaussian$weights)
-plot(sim_sumstat[, 1], pdf_values)
+
 ```
 
 
