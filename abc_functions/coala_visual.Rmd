@@ -15,6 +15,7 @@ The files `abc_kernel.r`, `abc_basic.r` and `abc_IEnKI.r` include functions writ
 ```{r echo=FALSE}
 library(coala)
 library(ggplot2)
+library(patchwork)
 source("abc_functions/abc_kernel.r")
 source("abc_functions/abc_basic.r")
 source("abc_functions/abc_IEnKI.r")
@@ -28,13 +29,13 @@ Assuming we get the following frequency spectrum from the data:
 sfs <- c(112, 57, 24, 34, 16, 29, 8, 10, 15)
 ```
 
-We setup a `coala` model with uniform prior for the mutation parameter. Then run the simulation 2000 times.
+We setup a `coala` model with uniform prior for the mutation parameter. Then run the simulation 100 times.
 
 ```{r model}
 model <- coal_model(10, 50) +
   feat_mutation(par_prior("theta", runif(1, 1, 5))) +
   sumstat_sfs()
-sim_data <- simulate(model, nsim = 2000, seed = 17)
+sim_data <- simulate(model, nsim = 100, seed = 17)
 ```
 
 The `create_abc_param` and `create_abc_sumstat` functions provide data for ABC methods.
@@ -72,22 +73,24 @@ pdf_values <- dnorm(abc_IEnKI_list$sumstat[, 1],
 
 We compare the ABC methods by plotting their given distributions for summary statistics.
 
-```{r plot}
-abc_df <- data.frame(
-  x = rep(sim_sumstat[, 1], 3),
-  y = c(basic_uniform$weights, basic_gaussian$weights, pdf_values),
-  type = rep(c("ABC uniform kernel", "ABC Gaussian kernel", "ABC-IEnKI"),
-             each = nrow(sim_sumstat))
-)
+```{r plot, fig.width=30, fig.height=30}
+plots <- lapply(1:9, function(i) {
+  abc_df <- data.frame(
+    x = rep(sim_sumstat[, i], 3),
+    y = c(basic_uniform$weights, basic_gaussian$weights, pdf_values),
+    type = rep(c("ABC uniform kernel", "ABC Gaussian kernel", "ABC-IEnKI"),
+                 each = nrow(sim_sumstat))
+  )
 
-ggplot(abc_df, aes(x = x, y = y, color = type)) +
-  geom_point(data = subset(abc_df, type != "ABC-IEnKI"), size = 3, alpha=0.5) +
-  geom_line(data = subset(abc_df, type == "ABC-IEnKI"), linewidth = 1.2) +
-  scale_color_manual(values = c("red", "blue", "green")) +
-  labs(title = "ABC methods", x = "X-axis", y = "Y-axis") +
-  theme_minimal()
+  ggplot(abc_df, aes(x = x, y = y, color = type)) +
+    geom_point(data=subset(abc_df, type != "ABC-IEnKI"), size=3, alpha=0.5) +
+    geom_line(data=subset(abc_df, type == "ABC-IEnKI"), linewidth=1.2) +
+    scale_color_manual(values=c("red", "blue", "green")) +
+    labs(title="ABC methods", x=colnames(sim_sumstat)[i], y="f(s|param)") +
+    theme_minimal()
+})
 
-
+wrap_plots(plots, ncol = 3)
 ```
 
 
