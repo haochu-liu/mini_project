@@ -10,4 +10,15 @@ add_bacteria_recomb <- function(obj, recombination) {
   return(obj)
 }
 
-
+bacteria_recomb_simulator <- function(obj) {
+  if (!inherits(obj, "bacteria_genealogy")) {
+    stop("Object must be of class 'bacteria_genealogy'")
+  }
+  T <- c()
+  for (i in 1:length(obj$items$coale_event)) {
+    T <- c(T, obj$items$coale_event[[i]][[1]])
+  }
+  T <- cumsum(T)
+  rho <- 2 * obj$N * obj$items$mutation_rate
+  R <- rpois(1, rho * tail(T, 1) / 2)
+}
