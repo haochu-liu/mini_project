@@ -20,5 +20,8 @@ bacteria_recomb_simulator <- function(obj) {
   }
   T <- cumsum(T)
   rho <- 2 * obj$N * obj$items$mutation_rate
-  R <- rpois(1, rho * tail(T, 1) / 2)
+  R <- rpois(1, rho * tail(T, 1) / 2) # R ~ Poi(rho * T / 2)
+  b <- runif(R, min=0, max=tail(T, 1)) # b_i|R ~ U(0, T)
+  t <- rexp(R, rate=1) # t_i|b_i ~ Exp(1)
+  a <- b + t # a_i = b_i + t_i
 }
