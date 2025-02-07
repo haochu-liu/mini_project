@@ -13,3 +13,5 @@ model3 <- coale_model(20, 1000)
 model3 <- add_mutation(model3, 0.001)
 model3 <- add_recombination(model3, 0.001)
 model3 <- model_simulator(model3)
+
+model4 <- add_bacteria_recomb(model1, 0.001, 0.2)
