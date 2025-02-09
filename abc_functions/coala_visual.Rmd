@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The files `abc_kernel.r`, `abc_basic.r` and `abc_IEnKI.r` include functions written by myself.
 
-```{r load, echo=FALSE}
+```{r load, echo=TRUE, results='hide'}
 library(coala)
 library(ggplot2)
 library(patchwork)
@@ -23,10 +23,16 @@ source("abc_IEnKI.r")
 
 ## Coala model
 
-Assuming we get the following frequency spectrum from the data:
+We start define a coalescent model with mutation rate $= 3$ as the target model. Assume we observe its frequency spectrum from one simulation:
 
-```{r sfs}
-sfs <- c(112, 57, 24, 34, 16, 29, 8, 10, 15)
+```{r target}
+target_model <- coal_model(10, 50) +
+  feat_mutation(rate = 3) +
+  sumstat_sfs()
+
+target_sumstats <- simulate(target_model)
+sfs <- target_sumstats$sfs
+print(sfs)
 ```
 
 We setup a `coala` model with uniform prior for the mutation parameter. Then run the simulation 100 times.
@@ -94,5 +100,3 @@ wrap_plots(plots, ncol = 3) +
   plot_annotation(title="ABC methods",
                   theme=theme(plot.title=element_text(size=25)))
 ```
-
-
