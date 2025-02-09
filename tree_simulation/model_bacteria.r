@@ -59,13 +59,14 @@ bacteria_recomb_simulator <- function(obj) {
     x <- runif(1, min=0, max=1-l) # x ~ U(0, 1-l)
     y <- x + l
 
-    recomb_list <- list(b=list(n=b_i_t,
+    recomb_list <- list(b=list(tree_n=b_i_t,
                                lineage=b_i_lineage,
                                position=b_i_position),
-                        a=list(n=a_i_t,
+                        a=list(tree_n=a_i_t,
                                lineage=a_i_lineage,
                                position=a_i_position),
                         x=x, y=y)
     obj$items$recomb_event <- append(obj$items$recomb_event, list(recomb_list))
   }
+  return(obj)
 }
