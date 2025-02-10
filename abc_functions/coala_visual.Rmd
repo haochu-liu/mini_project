@@ -30,7 +30,7 @@ target_model <- coal_model(10, 50) +
   feat_mutation(rate = 3) +
   sumstat_sfs()
 
-target_sumstats <- simulate(target_model)
+target_sumstats <- simulate(target_model, seed=123)
 sfs <- target_sumstats$sfs
 print(sfs)
 ```
@@ -41,7 +41,7 @@ We setup a `coala` model with uniform prior for the mutation parameter. Then run
 model <- coal_model(10, 50) +
   feat_mutation(par_prior("theta", runif(1, 1, 5))) +
   sumstat_sfs()
-sim_data <- simulate(model, nsim = 100, seed = 17)
+sim_data <- simulate(model, nsim = 100, seed = 123)
 ```
 
 The `create_abc_param` and `create_abc_sumstat` functions provide data for ABC methods.
