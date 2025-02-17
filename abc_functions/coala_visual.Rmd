@@ -61,7 +61,7 @@ Run basic ABC method with uniform or Gaussian kernel.
 basic_uniform <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
                            kernel='uniform')
 basic_gaussian <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
-kernel='Gaussian', sigma=rep(1, 9))
+kernel='Gaussian', sigma=diag(rep(1, 9)))
 ```
 
 Run ABC-IEnKI method by setting $\epsilon = {10^{10}, 10^{9}, \dots, 10^{-1}, 10^{-2}}$ and $\Sigma_s = I$.

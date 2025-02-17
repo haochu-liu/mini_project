@@ -1,9 +1,10 @@
 abc_basic <- function(obs, param, sumstat, tol, kernel='uniform', sigma=NULL) {
   weights <- c()
   n <- dim(param)[1]
+  if (is.null(sigma)) {sigma=diag(rep(1, length(obs)))}
   if (kernel=='uniform') {
     for (i in 1:n) {
-      k <- uniform_kernel(obs, as.numeric(sumstat[i, ]), tol)
+      k <- uniform_kernel(obs, as.numeric(sumstat[i, ]), tol, sigma)
       weights <- c(weights, k)
     }
   } else if (kernel=='Gaussian') {
