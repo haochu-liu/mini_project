@@ -26,8 +26,8 @@ abc_basic_list <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
 plot(abc_basic_list$param[, 1], abc_basic_list$weights)
 abc_basic_list <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
                             kernel='Gaussian', sigma=diag(rep(1, 9)))
-plot(abc_basic_list$param[, 1], abc_basic_list$weights)
-plot(abc_basic_list$sumstat[, 1], abc_basic_list$weights)
+plot(abc_basic_list$param[, 1], exp(abc_basic_list$log_weights))
+plot(abc_basic_list$sumstat[, 1], exp(abc_basic_list$log_weights))
 
 epsilon <- 10^(seq(from=10, to=-2, by=-1))
 Sigma <- diag(rep(1, length(sfs)))
