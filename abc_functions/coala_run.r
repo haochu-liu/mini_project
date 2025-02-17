@@ -29,7 +29,7 @@ abc_basic_list <- abc_basic(sfs, matrix(sim_param$theta), sim_sumstat, 50,
 plot(abc_basic_list$param[, 1], exp(abc_basic_list$log_weights))
 plot(abc_basic_list$sumstat[, 1], exp(abc_basic_list$log_weights))
 
-epsilon <- 10^(seq(from=10, to=-2, by=-1))
+epsilon <- c(50, 20, 10)
 Sigma <- diag(rep(1, length(sfs)))
 abc_IEnKI_list <- abc_IEnKI(sfs, matrix(sim_param$theta),
                             as.matrix(sim_sumstat), epsilon, Sigma)

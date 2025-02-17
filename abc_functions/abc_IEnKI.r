@@ -12,7 +12,7 @@ abc_IEnKI <- function(obs, param, sumstat, epsilon, sigma) {
     C_t <- C_t + (S[, i]-mu_t) %*% t(S[, i]-mu_t)
   }
   C_t <- C_t / (M-1)
-  Z_t <- 1
+  log_Z_t <- 0
   for (t in 2:T) {
     gamma_t <- e^(-2) / (epsilon[t]^(-2) - epsilon[t-1]^(-2))
     K_t <- C_t %*% solve(C_t + gamma_t*sigma)
@@ -22,9 +22,14 @@ abc_IEnKI <- function(obs, param, sumstat, epsilon, sigma) {
       S[, j] <- S[, j] + K_t %*% (S_obs - s_t)
     }
 
-    c_t <- gamma_t^(N/2) * (2*pi)^((1-gamma_t)*N/2) * det(sigma)^((1-gamma_t)/2)
-    Z_t <- Z_t * c_t * dmvnorm(obs, mean=mu_t, sigma=(C_t + gamma_t*sigma))
-
+    log_c_t <- log(gamma_t) * N / 2 + log(2*pi) * ((1-gamma_t)*N/2) +
+      log(det(sigma)) * ((1-gamma_t)/2)
+    # c_t <- gamma_t^(N/2)*(2*pi)^((1-gamma_t)*N/2)*det(sigma)^((1-gamma_t)/2)
+    log_Z_t <- log_Z_t + log_c_t + dmvnorm(obs,
+                                            mean=mu_t,
+                                            sigma=(C_t + gamma_t*sigma),
+                                            log=TRUE)
+    print(c(t, gamma_t, log_c_t, exp(log_c_t), log_Z_t))
     mu_t <- rowMeans(S)
     C_t <- 0
     for (i in 1:M) {
@@ -34,7 +39,8 @@ abc_IEnKI <- function(obs, param, sumstat, epsilon, sigma) {
   }
 
   abc_list <- list(param=param, sumstat=sumstat, obs=obs, epsilon=epsilon,
-                   sigma=sigma, Z_T=Z_t, mu_T=mu_t, C_T=C_t)
+                   sigma=sigma, log_Z_T=log_Z_t, Z_T=exp(log_Z_t),
+                   mu_T=mu_t, C_T=C_t)
   class(abc_list) <- "abc_IEnKI_list"
   return(abc_list)
 }
