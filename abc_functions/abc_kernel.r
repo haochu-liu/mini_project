@@ -1,8 +1,9 @@
 library(mvtnorm)
 
 
-uniform_kernel <- function(obs, sumstat, tol) {
-  d <- norm((obs - sumstat), type="2")
+uniform_kernel <- function(obs, sumstat, tol, sigma) {
+  distance_m <- as.matrix(obs - sumstat)
+  d <- t(distance_m) %*% solve(sigma) %*% distance_m
   if (d < tol) {
     return(1)
   } else{
