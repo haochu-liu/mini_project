@@ -1,4 +1,5 @@
 library(ape)
+library(phangorn)
 
 
 tree1 <- rcoal(5)
@@ -18,3 +19,6 @@ str(tree2_phylo)
 class(tree2_phylo)
 tree2_phylo$edge
 plot(tree2_phylo)
+
+a <- simSeq(tree1, l = 100, rate = 0.001)
+str(a)
