@@ -5,12 +5,14 @@ tree1 <- rcoal(5)
 str(tree1)
 class(tree1)
 tree1$edge
+tree1$tip.label
 plot(tree1)
 
-tree2 <- rtree(5)
+tree2 <- simcoale(3)
 str(tree2)
 class(tree2)
-plot(tree2)
+tree2$edge
+
 
 rcoal <- function(n, tip.label = NULL, br = "coalescent", ...)
 {
