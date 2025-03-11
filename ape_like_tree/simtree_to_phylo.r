@@ -11,7 +11,7 @@ simtree_to_phylo <- function(tree) {
                      tip.label=paste0("t", 1:tree$n),
                      Nnode=as.integer(tree$n - 1))
   class(tree_phylo) <- "phylo"
-  tree_phylo <- ape::reorder.phylo(tree_phylo, order="cladewise")
+  # tree_phylo <- ape::reorder.phylo(tree_phylo, order="cladewise")
 
   return(tree_phylo)
 }
