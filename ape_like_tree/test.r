@@ -1,5 +1,7 @@
 library(ape)
 library(phangorn)
+source("ape_like_tree/simcoale.r")
+source("ape_like_tree/simtree_to_phylo.r")
 
 
 tree1 <- rcoal(5)
@@ -9,7 +11,7 @@ tree1$edge
 plot(tree1)
 nodelabels()
 
-tree2 <- simcoale(5)
+tree2 <- simcoale(20)
 str(tree2)
 class(tree2)
 tree2$edge
