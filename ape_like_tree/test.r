@@ -6,8 +6,8 @@ tree1 <- rcoal(5)
 str(tree1)
 class(tree1)
 tree1$edge
-tree1$tip.label
 plot(tree1)
+nodelabels()
 
 tree2 <- simcoale(5)
 str(tree2)
@@ -20,5 +20,6 @@ class(tree2_phylo)
 tree2_phylo$edge
 plot(tree2_phylo)
 
-a <- simSeq(tree1, l = 100, rate = 0.001)
+a <- simSeq(tree1, l = 100, rate = 0.01)
 str(a)
+class(a)
