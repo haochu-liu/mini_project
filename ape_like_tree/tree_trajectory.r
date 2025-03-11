@@ -1,26 +1,17 @@
-library(ape)
-
-
-# Generate a random coalescent tree with 10 tips
-tree <- rcoal(10)
-
-# Function to find the trajectory from a tip to the root
-tree_trajectory <- function(tip, edge) {
-  trajectory <- c(tip)
-  current_node <- tip
+tree_trajectory <- function(child, tree) {
+  trajectory <- c(child)
+  edge_index <- c()
+  current_node <- child
   
-  # Traverse the tree upward until the root is reached
-  while (current_node != (Ntip(tree)+1)) {
-    # Find the parent of the current node
-    parent <- edge[edge[,2] == current_node, 1]
+  while (current_node != (tree$n + 1)) {
+    # Find the parent of the given node
+    parent_to_child <- which(tree$edge[, 2] == current_node)
+    parent <- tree$edge[parent_to_child, 1]
     trajectory <- c(trajectory, parent)
+    edge_index <- c(edge_index, parent_to_child)
     current_node <- parent
   }
   
-  return(trajectory)
+  traj <- list(trajectory=trajectory, edge_index=edge_index)
+  return(traj) # return a list including trajectory and indices for tree$edge
 }
-
-tree_trajectory(1, edge=tree$edge)
-tree$tip.label
-plot(tree)
-nodelabels()

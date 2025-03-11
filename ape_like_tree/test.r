@@ -21,6 +21,9 @@ str(tree2_phylo)
 class(tree2_phylo)
 tree2_phylo$edge
 plot(tree2_phylo)
+nodelabels()
+
+tree_trajectory(1, tree=tree2)
 
 a <- simSeq(tree1, l = 100, rate = 0.01)
 str(a)
