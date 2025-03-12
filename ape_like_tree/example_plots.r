@@ -1,8 +1,9 @@
 library(ape)
-library(ggplot2)
+library(sdprisk)
 source("ape_like_tree/simcoale.r")
 source("ape_like_tree/simtree_to_phylo.r")
 source("ape_like_tree/simmutation.r")
+source("ape_like_tree/length_and_height.r")
 
 
 tree2 <- simcoale(5)
@@ -41,3 +42,22 @@ plot(tree2_phylo)
 nodelabels()
 # edgelabels()
 
+height_vec <- c()
+length_vec <- c()
+n <- 10
+for (i in 1:1000) {
+  tree <- simcoale(n)
+  height_vec <- c(height_vec, tree_height(tree))
+  length_vec <- c(length_vec, tree_length(tree))
+}
+height_rate <- n:2 * (n-1):1 / 2
+x <- seq(0, 10, length.out = 500)
+height_density <- dhypoexp(x, rate=height_rate)
+hist(height_vec, probability = TRUE, col="gray", breaks=20)
+lines(x, height_density)
+
+length_rate <- (n-1):1 / 2
+x <- seq(0, 20, length.out = 500)
+length_density <- dhypoexp(x, rate=length_rate)
+hist(length_vec, probability = TRUE, col="gray", breaks=20)
+lines(x, length_density)

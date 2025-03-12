@@ -1,4 +1,5 @@
 source("ape_like_tree/length_and_height.r")
+source("ape_like_tree/tree_trajectory.r")
 
 
 # input: tree, mutation rate, finite or infinite alleles
