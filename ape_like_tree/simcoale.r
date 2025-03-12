@@ -2,6 +2,7 @@ simcoale <- function(n) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   }
+  
   n_edge <- 2 * (n-1) # number of edges in a coale tree
   edge <- matrix(NA, nrow=n_edge, ncol=2)
   edge.length <- rep(NA, n_edge)
