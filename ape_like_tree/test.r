@@ -26,6 +26,5 @@ nodelabels()
 
 tree_trajectory(1, tree=tree2)
 
-a <- simSeq(tree1, l = 100, rate = 0.01)
-str(a)
-class(a)
+df <- simmutation(tree=tree2, rate=1, model="infinite sites")
+df <- simmutation(tree=tree2, rate=1, model="finite sites", l_seq = 10)
