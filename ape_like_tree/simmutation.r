@@ -14,6 +14,7 @@ simmutation <- function(tree, rate, model="infinite sites", l_seq=NULL) {
 
     l <- tree_length(tree=tree)
     n <- rpois(1, rate*l/2) # num of mutations | l ~ Poisson(rate*l/2)
+    if (n == 0) {return(list(mutations=NA, node_seq=NA))}
 
     mutate_edges <- sample(1:nrow(tree$edge), n,
                            replace=TRUE, prob=tree$edge.length)

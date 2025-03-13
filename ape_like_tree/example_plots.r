@@ -6,17 +6,18 @@ source("ape_like_tree/simmutation.r")
 source("ape_like_tree/length_and_height.r")
 
 
-tree2 <- simcoale(5)
+n <- 10
+tree2 <- simcoale(n)
 str(tree2)
 class(tree2)
 tree2$edge
 
 df1 <- simmutation(tree=tree2, rate=1, model="infinite sites")
-df2 <- simmutation(tree=tree2, rate=1, model="finite sites", l_seq = 4)
+df2 <- simmutation(tree=tree2, rate=1, model="finite sites", l_seq = 5)
 
-df1_node <- df1$node_seq$node[1:5]
+df1_node <- df1$node_seq$node[1:n]
 df1_label <- c()
-for (i in 1:5) {
+for (i in 1:n) {
   string_node <- paste0("[", paste(round(df1_node[[i]], 3), collapse = ", "), "]")
   df1_label <- c(df1_label, paste(i, string_node, sep=":"))
 }
@@ -28,9 +29,9 @@ plot(tree2_phylo)
 nodelabels()
 # edgelabels()
 
-df2_node <- df2$node_seq$node[1:5]
+df2_node <- df2$node_seq$node[1:n]
 df2_label <- c()
-for (i in 1:5) {
+for (i in 1:n) {
   string_node <- paste0("[", paste(df2_node[[i]], collapse = ", "), "]")
   df2_label <- c(df2_label, paste(i, string_node, sep=":"))
 }
@@ -53,11 +54,15 @@ for (i in 1:1000) {
 height_rate <- n:2 * (n-1):1 / 2
 x <- seq(0, 10, length.out = 500)
 height_density <- dhypoexp(x, rate=height_rate)
-hist(height_vec, probability = TRUE, col="gray", breaks=20)
+hist(height_vec, probability = TRUE, col="gray", breaks=20,
+     main = "Plot of TMRCA and hypoexponential distribution",
+     xlab = "TMRCA", ylab = "Density")
 lines(x, height_density)
 
 length_rate <- (n-1):1 / 2
 x <- seq(0, 20, length.out = 500)
 length_density <- dhypoexp(x, rate=length_rate)
-hist(length_vec, probability = TRUE, col="gray", breaks=20)
+hist(length_vec, probability = TRUE, col="gray", breaks=20,
+     main = "Plot of total tree length and hypoexponential distribution",
+     xlab = "total tree length", ylab = "Density")
 lines(x, length_density)
