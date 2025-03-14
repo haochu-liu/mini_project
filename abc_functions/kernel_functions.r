@@ -1,7 +1,6 @@
+uniform_kernel <- function(y, z, tol=1, sigma) {
 #' input: y(vector), z(vector), tol(numeric), sigma(matrix)
 #' output: K_tol(y, z)
-
-uniform_kernel <- function(y, z, tol=1, sigma) {
   if (length(y)!=length(z)) {
     stop("Two vectors should have same length.")
   }
@@ -13,6 +12,8 @@ uniform_kernel <- function(y, z, tol=1, sigma) {
 
 
 triangular_kernel <- function(y, z, tol=1, sigma) {
+#' input: y(vector), z(vector), tol(numeric), sigma(matrix)
+#' output: K_tol(y, z)
   if (length(y)!=length(z)) {
     stop("Two vectors should have same length.")
   }
@@ -24,6 +25,8 @@ triangular_kernel <- function(y, z, tol=1, sigma) {
 
 
 epanechnikov_kernel <- function(y, z, tol=1, sigma) {
+#' input: y(vector), z(vector), tol(numeric), sigma(matrix)
+#' output: K_tol(y, z)
   if (length(y)!=length(z)) {
     stop("Two vectors should have same length.")
   }
@@ -35,6 +38,8 @@ epanechnikov_kernel <- function(y, z, tol=1, sigma) {
 
 
 biweight_kernel <- function(y, z, tol=1, sigma) {
+#' input: y(vector), z(vector), tol(numeric), sigma(matrix)
+#' output: K_tol(y, z)
   if (length(y)!=length(z)) {
     stop("Two vectors should have same length.")
   }
@@ -46,11 +51,13 @@ biweight_kernel <- function(y, z, tol=1, sigma) {
 
 
 gaussian_kernel <- function(y, z, tol=1, sigma) {
+#' input: y(vector), z(vector), tol(numeric), sigma(matrix)
+#' output: log(K_tol(y, z))
   if (length(y)!=length(z)) {
     stop("Two vectors should have same length.")
   }
 
   d <- as.matrix(y - z)
   u <- sqrt(t(d) %*% solve(sigma) %*% d) / tol
-  return(dnorm(u))
+  return(dnorm(u, log=TRUE))
 }
