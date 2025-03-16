@@ -2,6 +2,7 @@ library(ggplot2)
 source("abc_functions/abc_rejection.r")
 
 
+# abc_rejection and abc_knn
 mu <- 0
 # observation
 s_obs <- mean(rnorm(10, mean=mu, sd=1))
@@ -33,3 +34,5 @@ ggplot(abc_df, aes(x = x, y = y, color = type)) +
 
 w_k <- abc_knn(c(s_obs), matrix(mu_vec), matrix(s_vec),
                k=10, kernel = "uniform")
+
+# abc_mcmc
