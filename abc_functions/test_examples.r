@@ -30,3 +30,6 @@ ggplot(abc_df, aes(x = x, y = y, color = type)) +
   scale_color_manual(values=c("red", "blue", "green")) +
   labs(x="mu", y="pi(mu|s_obs)") +
   theme_minimal()
+
+w_k <- abc_knn(c(s_obs), matrix(mu_vec), matrix(s_vec),
+               k=10, kernel = "uniform")
