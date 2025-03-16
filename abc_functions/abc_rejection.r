@@ -16,33 +16,40 @@ abc_rejection <- function(obs, param, sumstat, tol, kernel,
     weights <- vapply(1:n,
                       function(i) uniform_kernel(obs, sumstat[i, ], tol, sigma),
                       numeric(1))
+    if (sum(weights)==0) {return(weights)}
     weights <- weights / sum(weights)
     if (log.weight) {weights <- log(weights)}
+    return(weights)
   } else if (kernel=="triangular") {
     weights <- vapply(1:n,
                       function(i) triangular_kernel(obs, sumstat[i, ], tol, sigma),
                       numeric(1))
+    if (sum(weights)==0) {return(weights)}
     weights <- weights / sum(weights)
     if (log.weight) {weights <- log(weights)}
+    return(weights)
   } else if (kernel=="epanechnikov") {
     weights <- vapply(1:n,
                       function(i) epanechnikov_kernel(obs, sumstat[i, ], tol, sigma),
                       numeric(1))
+    if (sum(weights)==0) {return(weights)}
     weights <- weights / sum(weights)
     if (log.weight) {weights <- log(weights)}
+    return(weights)
   } else if (kernel=="biweight") {
     weights <- vapply(1:n,
                       function(i) biweight_kernel(obs, sumstat[i, ], tol, sigma),
                       numeric(1))
+    if (sum(weights)==0) {return(weights)}
     weights <- weights / sum(weights)
     if (log.weight) {weights <- log(weights)}
+    return(weights)
   } else if (kernel=="gaussian") {
     weights <- vapply(1:n,
                       function(i) gaussian_kernel(obs, sumstat[i, ], tol, sigma),
                       numeric(1))
     weights <- weights - logSumExp(weights)
     if (!log.weight) {weights <- exp(weights)}
-  } else {stop("No valid kernel")}
-
-  return(weights)
+    return(weights)
+  } else {stop("No valid kernel.")}
 }
