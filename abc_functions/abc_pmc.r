@@ -5,7 +5,7 @@ source("abc_functions/kernel_functions.r")
 
 abc_pmc <- function(obs, tol, kernel, p_theta, d_theta, p_s, n_iter, sigma=NULL) {
 #' input: obs, sigma, tol(vec in descendant order), kernel,
-#' prior p_theta(theta), model p_s(theta), n_iter
+#' prior p_theta(), log-density d_theta(), model p_s(theta), n_iter
 #' output: matrix (n_iter x length(theta)), matrix (n_iter x length(s))
 
   if (kernel!="uniform" & kernel!="triangular" & kernel!="epanechnikov" &
@@ -39,14 +39,14 @@ abc_pmc <- function(obs, tol, kernel, p_theta, d_theta, p_s, n_iter, sigma=NULL)
     theta_matrix[i, ] <- theta_0
     s_matrix[i, ] <- s_0
   }
-  w <- rep(1/n_iter, n_iter)
+  w <- rep(log(1/n_iter), n_iter)
   tau <- 2*var(theta_matrix)
 
   for (t in 2:T_tol) {
     theta_1_matrix <- matrix(NA, nrow=n_iter, ncol=length(p_theta()))
+    w_1 <- rep(NA, n_iter)
     for (i in 1:n_iter) {
-      theta_index <- sample(1:n_iter, 1, prob=w)
-      w_1 <- rep(NA, n_iter)
+      theta_index <- sample(1:n_iter, 1, prob=exp(w))
       while (TRUE) {
         theta_0 <- rmvnorm(n=1, mean=theta_matrix[theta_index, ], sigma=tau)
         s_0 <- p_s(theta_0)
@@ -67,7 +67,9 @@ abc_pmc <- function(obs, tol, kernel, p_theta, d_theta, p_s, n_iter, sigma=NULL)
           if (k_0<log(tol[1])) {break}
         }
       }
-      w_1[i] <- d_theta(theta_0) - logSumExp(log(w)+dmvnorm((theta_0-theta_matrix), sigma=tau))
+      w_1[i] <- d_theta(theta_0) -
+        logSumExp(w+dmvnorm((as.numeric(theta_0)-theta_matrix), sigma=tau,
+                                 log=TRUE))
       theta_1_matrix[i, ] <- theta_0
       s_matrix[i, ] <- s_0
     }
