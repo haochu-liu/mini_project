@@ -1,5 +1,6 @@
 library(ggplot2)
 source("abc_functions/abc_rejection.r")
+source("abc_functions/abc_mcmc.r")
 
 
 # abc_rejection and abc_knn
@@ -36,3 +37,21 @@ w_k <- abc_knn(c(s_obs), matrix(mu_vec), matrix(s_vec),
                k=10, kernel = "uniform")
 
 # abc_mcmc
+mu <- 0
+# observation
+s_obs <- mean(rnorm(10, mean=mu, sd=1))
+# proposal function
+p_theta <- function(theta_0) {
+  runif(1, min=-1, max=2)
+}
+d_theta <- function(theta_1, theta_0) {
+  1/3
+}
+# model sample
+p_s <- function(theta) {
+  mean(rnorm(10, mean=theta), sd=1)
+}
+# initial theta
+mu_0 <- runif(1, min=-1, max=2)
+
+
