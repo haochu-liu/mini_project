@@ -41,6 +41,7 @@ w_k <- abc_knn(c(s_obs), matrix(mu_vec), matrix(s_vec),
 mu <- 0
 # observation
 s_obs <- mean(rnorm(10, mean=mu, sd=1))
+# s_obs <- 0
 # proposal function
 p_theta <- function(theta_0) {
   runif(1, min=-2, max=2)
@@ -65,7 +66,7 @@ abline(v = mu, col = "red", lwd = 2, lty = 2)
 mu <- 0
 # observation
 s_obs <- mean(rnorm(10, mean=mu, sd=1))
-s_obs <- 0
+# s_obs <- 0
 # proposal function
 p_theta <- function() {
   runif(1, min=-2, max=2)
