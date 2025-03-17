@@ -42,16 +42,20 @@ mu <- 0
 s_obs <- mean(rnorm(10, mean=mu, sd=1))
 # proposal function
 p_theta <- function(theta_0) {
-  runif(1, min=-1, max=2)
+  runif(1, min=-2, max=2)
 }
 d_theta <- function(theta_1, theta_0) {
-  1/3
+  log(1/4)
 }
 # model sample
 p_s <- function(theta) {
   mean(rnorm(10, mean=theta), sd=1)
 }
 # initial theta
-mu_0 <- runif(1, min=-1, max=2)
-
-
+mu_0 <- runif(1, min=-2, max=2)
+# M-H
+matrix_list <- abc_mcmc(c(s_obs), 0.01, "gaussian", p_theta, d_theta, p_s, d_theta, mu_0, 10000)
+# hist of posterior
+hist(matrix_list$theta_matrix, probability = TRUE, main = "pi(mu|s_obs)",
+     breaks = 20, col = "gray", border = "black")
+abline(v = mu, col = "red", lwd = 2, lty = 2)
