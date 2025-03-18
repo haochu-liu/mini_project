@@ -2,6 +2,14 @@ library(matrixStats)
 source("abc_functions/kernel_functions.r")
 
 
+ess <- function(w) {
+#' input: normalized weights(vector)
+#' output: effective sample size
+
+  return(1/sum(w^2))
+}
+
+
 abc_smc <- function(obs, tol, kernel, p_theta, d_theta, p_s, n_iter, sigma=NULL) {
 #' input: obs, sigma, tol(vec in descendant order), kernel,
 #' prior p_theta(), log-density d_theta(), model p_s(theta), n_iter
