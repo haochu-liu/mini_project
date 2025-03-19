@@ -15,5 +15,10 @@ abc_smc <- function(obs, tol, kernel, p_theta, d_theta, p_s, n_iter, sigma=NULL)
 #' prior p_theta(), log-density d_theta(), model p_s(theta), n_iter
 #' output: matrix (n_iter x length(theta)), matrix (n_iter x length(s))
 
-
+  if (is.null(sigma)) {sigma=diag(rep(1, length(obs)))}
+  theta_matrix <- matrix(NA, nrow=n_iter, ncol=length(p_theta()))
+  s_matrix <- matrix(NA, nrow=n_iter, ncol=length(obs))
+  T_tol <- length(tol)
+  t <- 1
+  
 }

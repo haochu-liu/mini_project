@@ -5,7 +5,7 @@ source("abc_functions/kernel_functions.r")
 
 abc_pmc <- function(obs, tol, kernel, p_theta, d_theta, p_s, n_iter, sigma=NULL) {
 #' input: obs, sigma, tol(vec in descendant order), kernel,
-#' prior p_theta(), log-density d_theta(), model p_s(theta), n_iter
+#' prior p_theta(), log-density d_theta(theta), model p_s(theta), n_iter
 #' output: matrix (n_iter x length(theta)), matrix (n_iter x length(s))
 
   if (kernel!="uniform" & kernel!="triangular" & kernel!="epanechnikov" &
