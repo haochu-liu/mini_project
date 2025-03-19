@@ -2,6 +2,7 @@ library(ggplot2)
 source("abc_functions/abc_rejection.r")
 source("abc_functions/abc_mcmc.r")
 source("abc_functions/abc_pmc.r")
+source("abc_functions/abc_llr.r")
 
 
 # abc_rejection and abc_knn
@@ -34,8 +35,25 @@ ggplot(abc_df, aes(x = x, y = y, color = type)) +
   labs(x="mu", y="pi(mu|s_obs)") +
   theme_minimal()
 
+# abc-knn
 w_k <- abc_knn(c(s_obs), matrix(mu_vec), matrix(s_vec),
                k=10, kernel = "uniform")
+
+# abc-rejection + local linear regression
+corrected_mu <- abc_llr(c(s_obs), matrix(mu_vec), matrix(s_vec), weights3)
+abc_df <- data.frame(
+  x = c(mu_vec, corrected_mu),
+  y = rep(weights3, 2),
+  type = rep(c("abc-rejection", "abc local linear regression"),
+               each = length(mu_vec))
+)
+
+ggplot(abc_df, aes(x = x, y = y, color = type)) +
+geom_point(data=abc_df, size=3, alpha=0.5) +
+scale_color_manual(values=c("red", "blue")) +
+labs(x="mu", y="pi(mu|s_obs)") +
+theme_minimal()
+
 
 # abc-mcmc
 mu <- 0
