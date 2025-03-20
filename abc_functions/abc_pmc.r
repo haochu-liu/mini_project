@@ -39,11 +39,11 @@ abc_pmc <- function(obs, tol, kernel_func, p_theta, d_theta, p_s, n_iter, sigma=
       }
       w_1[i] <- d_theta(theta_0) -
         logSumExp(w+dmvnorm((as.numeric(theta_0)-theta_matrix), sigma=tau,
-                                 log=TRUE))
+                                 log=TRUE)+c(log(sqrt(tau))))
       theta_1_matrix[i, ] <- theta_0
       s_matrix[i, ] <- s_0
     }
-    w <- w_1
+    w <- w_1 - logSumExp(w_1)
     theta_matrix <- theta_1_matrix
     tau <- 2*var(theta_matrix)
   }

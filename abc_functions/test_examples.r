@@ -1,5 +1,6 @@
 library(ggplot2)
 source("abc_functions/abc_rejection.r")
+source("abc_functions/abc_knn.r")
 source("abc_functions/abc_mcmc.r")
 source("abc_functions/abc_pmc.r")
 source("abc_functions/abc_llr.r")
@@ -17,11 +18,11 @@ for (i in 1:length(mu_vec)) {
   s_vec <- c(s_vec, s_i)
 }
 weights1 <- abc_rejection(c(s_obs), matrix(mu_vec), matrix(s_vec),
-                          tol=0.1, kernel = "uniform")
+                          tol=0.1, kernel = uniform_kernel)
 weights2 <- abc_rejection(c(s_obs), matrix(mu_vec), matrix(s_vec),
-                          tol=0.1, kernel = "epanechnikov")
+                          tol=0.1, kernel = epanechnikov_kernel)
 weights3 <- abc_rejection(c(s_obs), matrix(mu_vec), matrix(s_vec),
-                          tol=0.1, kernel = "gaussian")
+                          tol=0.1, kernel = gaussian_kernel)
 abc_df <- data.frame(
     x = rep(mu_vec, 3),
     y = c(weights1, weights2, weights3),
@@ -37,7 +38,7 @@ ggplot(abc_df, aes(x = x, y = y, color = type)) +
 
 # abc-knn
 w_k <- abc_knn(c(s_obs), matrix(mu_vec), matrix(s_vec),
-               k=10, kernel = "uniform")
+               k=10, kernel = uniform_kernel)
 
 # abc-rejection + local linear regression
 corrected_mu <- abc_llr(c(s_obs), matrix(mu_vec), matrix(s_vec), weights3)
@@ -74,7 +75,7 @@ p_s <- function(theta) {
 # initial theta
 mu_0 <- runif(1, min=-2, max=2)
 # M-H
-matrix_list <- abc_mcmc(c(s_obs), 0.01, "gaussian", p_theta, d_theta, p_s, d_theta, mu_0, 10000)
+matrix_list <- abc_mcmc(c(s_obs), 0.01, gaussian_kernel, p_theta, d_theta, p_s, d_theta, mu_0, 10000)
 # hist of posterior
 hist(matrix_list$theta_matrix, probability = TRUE, main = "pi(mu|s_obs)",
      breaks = 20, col = "gray", border = "black")
@@ -90,15 +91,16 @@ p_theta <- function() {
   runif(1, min=-2, max=2)
 }
 d_theta <- function(theta) {
-  log(1/4)
+  if (theta < 2 & theta > -2) {return(log(1/4))}
+  return(log(0))
 }
 # model sample
 p_s <- function(theta) {
   mean(rnorm(10, mean=theta), sd=1)
 }
 # list of tolerance
-tol <- c(10, 1, 0.1, 0.01)
-matrix_list <- abc_pmc(c(s_obs), tol, "gaussian", p_theta, d_theta, p_s, 1000)
+tol <- c(10, 2, 1.5, 1, 0.5)
+matrix_list <- abc_pmc(c(s_obs), tol, gaussian_kernel, p_theta, d_theta, p_s, 1000)
 # hist of posterior
 hist(matrix_list$theta_matrix, probability = TRUE, main = "pi(mu|s_obs)",
      breaks = 20, col = "gray", border = "black")
