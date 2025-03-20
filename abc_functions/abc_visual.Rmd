@@ -8,22 +8,163 @@ date: "2025-03-20"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Load packages and functions
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Load functions of ABC methods from `abc_rejection.r`, `abc_knn.r`, `abc_mcmc.r`, `abc_pmc.r` and `abc_llr.r`.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r load, echo=TRUE, results='hide'}
+library(ggplot2)
+setwd("C:/Users/u2008181/mini_project")
+source("abc_functions/abc_rejection.r")
+source("abc_functions/abc_knn.r")
+source("abc_functions/abc_mcmc.r")
+source("abc_functions/abc_pmc.r")
+source("abc_functions/abc_llr.r")
 ```
 
-## Including Plots
+## ABC rejection
 
-You can also embed plots, for example:
+Consider model $Y \sim \mathcal{N}(0, 1)$, we observe 10 outcomes $\mathbf{y}_{obs} = (y_1, \dots, y_{10})$ and compute their mean as the observed summary statistics $s_{obs} = s(\mathbf{y}_{obs})$. To apply ABC methods, we generate data and summary statistics by this assumption:
+$$
+\begin{align}
+\mu &\sim U[-2, 2]\\
+Y_i &\sim \mathcal{N}(\mu, 1), \ \text{for }i = 1, \dots, 10,\\
+\end{align}
+$$
+and the summary statistics is mean value between these 10 samples. We use this model to generate 100 summary statistics and in total 1000 data points.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r rejection setup}
+mu <- 0
+# observation
+s_obs <- mean(rnorm(10, mean=mu, sd=1))
+# simulations
+mu_vec <- runif(100, min=-2, max=2)
+s_vec <- c()
+for (i in 1:length(mu_vec)) {
+  s_i <- mean(rnorm(10, mean=mu_vec[i]), sd=1)
+  s_vec <- c(s_vec, s_i)
+}
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Then, use the simulated summary statistics to obtain weights for the $\mu$ values. We apply basic ABC rejection method here with uniform, epanechnikov and Gaussian kernels.
+
+```{r rejection weights and plots}
+weights1 <- abc_rejection(c(s_obs), matrix(mu_vec), matrix(s_vec),
+                          tol=0.1, kernel = uniform_kernel)
+weights2 <- abc_rejection(c(s_obs), matrix(mu_vec), matrix(s_vec),
+                          tol=0.1, kernel = epanechnikov_kernel)
+weights3 <- abc_rejection(c(s_obs), matrix(mu_vec), matrix(s_vec),
+                          tol=0.1, kernel = gaussian_kernel)
+abc_df <- data.frame(
+    x = rep(mu_vec, 3),
+    y = c(weights1, weights2, weights3),
+    type = rep(c("uniform kernel", "epanechnikov kernel", "Gaussian kernel"),
+                 each = length(mu_vec))
+  )
+
+ggplot(abc_df, aes(x = x, y = y, color = type)) +
+  geom_point(data=abc_df, size=3, alpha=0.5) +
+  scale_color_manual(values=c("red", "blue", "green")) +
+  labs(x="mu", y="pi(mu|s_obs)") +
+  geom_vline(xintercept = s_obs, color = "black", linetype = "dashed", size = 1) +
+  annotate("text", x = 0, y = max(abc_df$y)+0.1, label = "s_obs", color = "black", hjust = 0) +
+  theme_minimal()
+```
+
+### Rejection with kNN
+
+In the function `abc_knn`, it determines tolerance by the distance of k-th nearest neighbor.
+
+```{r knn function}
+w_k <- abc_knn(c(s_obs), matrix(mu_vec), matrix(s_vec),
+               k=10, kernel = uniform_kernel)
+sum(w_k!=0)
+```
+
+### Rejction with local linear regression
+
+Adjust $\mu$ with locally regressed transforms
+$$
+\mu^* = \mu - [s - s_{obs}]^T \beta,
+$$
+where $\hat{\beta}$ is obtained by weighted least square regression with weights $K_{\epsilon}(s, s_{obs})$ and tolerance $\epsilon$.The code below apply local linear regression using the weights from the ABC rejection function with Gaussian kernel.
+
+```{r llr}
+corrected_mu <- abc_llr(c(s_obs), matrix(mu_vec), matrix(s_vec), weights3)
+abc_df <- data.frame(
+  x = c(mu_vec, corrected_mu),
+  y = rep(weights3, 2),
+  type = rep(c("abc-rejection", "abc local linear regression"),
+               each = length(mu_vec))
+)
+
+ggplot(abc_df, aes(x = x, y = y, color = type)) +
+geom_point(data=abc_df, size=3, alpha=0.5) +
+scale_color_manual(values=c("red", "blue")) +
+labs(x="mu", y="pi(mu|s_obs)") +
+geom_vline(xintercept = s_obs, color = "black", linetype = "dashed", size = 1) +
+annotate("text", x = 0, y = max(abc_df$y)+0.1, label = "s_obs", color = "black", hjust = 0) +
+theme_minimal()
+```
+
+## ABC-MCMC
+
+Then we generate parameter $\mu$ using ABC-MCMC method. The assumption
+$$
+\begin{align}
+\mu &\sim U[-2, 2]\\
+Y_i &\sim \mathcal{N}(\mu, 1), \ \text{for }i = 1, \dots, 10,\\
+\end{align}
+$$
+is the proposal and prior distribution here. The code block generate 10001 $\mu$s and we drop the first 5000 samples and plot the histogram.
+
+```{r abc-mcmc}
+# proposal function
+p_theta <- function(theta_0) {
+  runif(1, min=-2, max=2)
+}
+d_theta <- function(theta_1, theta_0) {
+  if (theta_1 < 2 & theta_1 > -2) {return(log(1/4))}
+  return(log(0))
+}
+# model sample
+p_s <- function(theta) {
+  mean(rnorm(10, mean=theta), sd=1)
+}
+# initial theta
+mu_0 <- runif(1, min=-2, max=2)
+# M-H
+matrix_list <- abc_mcmc(c(s_obs), 0.01, gaussian_kernel, p_theta, d_theta, p_s, d_theta, mu_0, 10000)
+# hist of posterior
+hist(matrix_list$theta_matrix[5000:10001, ], probability = TRUE, main = "Histogram of mu|s_obs",
+     breaks = 20, col = "gray", border = "black", xlab="mu")
+abline(v = s_obs, col = "red", lwd = 2, lty = 2)
+```
+
+## ABC-PMC
+
+The ABC-PMC method takes the same proposal and summary statistics with a tolerance sequence $(\epsilon_1, \dots, \epsilon_5) = (10, 2, 1.5, 1, 0.5)$. For each tolerance $\epsilon_i$, the algorithm samples 1000 $\mu$s. The histogram presents samples after the last iteration.
+
+```{r abc-pmc}
+# proposal function
+p_theta <- function() {
+  runif(1, min=-2, max=2)
+}
+d_theta <- function(theta) {
+  if (theta < 2 & theta > -2) {return(log(1/4))}
+  return(log(0))
+}
+# model sample
+p_s <- function(theta) {
+  mean(rnorm(10, mean=theta), sd=1)
+}
+# list of tolerance
+tol <- c(10, 2, 1.5, 1, 0.5)
+matrix_list <- abc_pmc(c(s_obs), tol, gaussian_kernel, p_theta, d_theta, p_s, 1000)
+# hist of posterior
+hist(matrix_list$theta_matrix, probability = TRUE, main = "Histogram of mu|s_obs",
+     breaks = 20, col = "gray", border = "black", xlab="mu")
+abline(v = s_obs, col = "red", lwd = 2, lty = 2)
+```
+
+

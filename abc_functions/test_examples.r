@@ -11,7 +11,7 @@ mu <- 0
 # observation
 s_obs <- mean(rnorm(10, mean=mu, sd=1))
 # simulations
-mu_vec <- runif(100, min=-1, max=2)
+mu_vec <- runif(100, min=-2, max=2)
 s_vec <- c()
 for (i in 1:length(mu_vec)) {
   s_i <- mean(rnorm(10, mean=mu_vec[i]), sd=1)
@@ -77,7 +77,7 @@ mu_0 <- runif(1, min=-2, max=2)
 # M-H
 matrix_list <- abc_mcmc(c(s_obs), 0.01, gaussian_kernel, p_theta, d_theta, p_s, d_theta, mu_0, 10000)
 # hist of posterior
-hist(matrix_list$theta_matrix, probability = TRUE, main = "pi(mu|s_obs)",
+hist(matrix_list$theta_matrix[5000:10001, ], probability = TRUE, main = "pi(mu|s_obs)",
      breaks = 20, col = "gray", border = "black")
 abline(v = mu, col = "red", lwd = 2, lty = 2)
 
