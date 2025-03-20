@@ -10,7 +10,7 @@ ess <- function(w) {
 }
 
 
-abc_smc <- function(obs, tol, kernel, p_theta, d_theta, p_s, n_iter, sigma=NULL) {
+abc_smc <- function(obs, tol, kernel_func, p_theta, d_theta, p_s, n_iter, sigma=NULL) {
 #' input: obs, sigma, tol(vec in descendant order), kernel,
 #' prior p_theta(), log-density d_theta(), model p_s(theta), n_iter
 #' output: matrix (n_iter x length(theta)), matrix (n_iter x length(s))
