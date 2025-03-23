@@ -17,6 +17,6 @@ tree_height <- function(tree) {
   }
 
   # provide the height (time to MRCA) of the tree
-  traj <- tree_trajectory(1, tree)
+  traj <- tree_trajectory2(1, tree)
   return(sum(tree$edge.length[traj$edge_index]))
 }

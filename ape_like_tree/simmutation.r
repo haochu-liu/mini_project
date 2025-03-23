@@ -37,7 +37,7 @@ simmutation <- function(tree, rate, model="infinite sites", l_seq=NULL) {
     if (model=="infinite sites") {
         node_seq$node[[tree$n+1]] <- numeric(0)
         for (i in c((tree$n+2):(2*tree$n-1), 1:tree$n)) {
-            traj <- tree_trajectory(i, tree=tree)
+            traj <- tree_trajectory2(i, tree=tree)
             parent_node <- traj$trajectory[2]
             i_edge <- traj$edge_index[1]
             edge_mutation <- mutations$site[mutations$edge_index==i_edge]
@@ -47,7 +47,7 @@ simmutation <- function(tree, rate, model="infinite sites", l_seq=NULL) {
     } else if (model=="finite sites" & (!is.null(l_seq))) {
         node_seq$node[[tree$n+1]] <- rep(0, l_seq)
         for (i in c((tree$n+2):(2*tree$n-1), 1:tree$n)) {
-            traj <- tree_trajectory(i, tree=tree)
+            traj <- tree_trajectory2(i, tree=tree)
             parent_node <- traj$trajectory[2]
             i_edge <- traj$edge_index[1]
             edge_mutation <- mutations$site[mutations$edge_index==i_edge]
