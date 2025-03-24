@@ -71,7 +71,7 @@ lines(x, length_density)
 mutation_mean <- c()
 for (n in 2:50) {
   num <- c()
-  for (t in 1:100) {
+  for (t in 1:1000) {
     tree1 <- simcoale(n)
     mutation_df <- simmutation(tree=tree1, rate=1, model="finite sites", l_seq = 5)
     if (!is.na(mutation_df$mutations$edge_index[1])) {

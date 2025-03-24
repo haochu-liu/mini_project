@@ -1,5 +1,4 @@
 source("ape_like_tree/length_and_height.r")
-source("ape_like_tree/tree_trajectory.r")
 
 
 #' input: tree, mutation rate, finite or infinite alleles
@@ -42,27 +41,18 @@ simmutation <- function(tree, rate, model="finite sites", l_seq=NULL) {
     node_seq$node <- as.list(node_seq$node)
     if (model=="infinite sites") {
         node_seq$node[[tree$n+1]] <- numeric(0)
-        for (i in c((tree$n+2):(2*tree$n-1), 1:tree$n)) {
-            traj <- tree_trajectory2(i, tree=tree)
-            parent_node <- traj$trajectory[2]
-            i_edge <- traj$edge_index[1]
-            edge_mutation <- mutations$site[mutations$edge_index==i_edge]
-            node_seq$node[[i]] <- sort(c(node_seq$node[[parent_node]],
-                                         edge_mutation))
+        for (i in nrow(tree$edge):1) {
+            edge_mutation <- mutations$site[mutations$edge_index==i]
+            parent_seq <- node_seq$node[[tree$edge[i, 1]]]
+            node_seq$node[[tree$edge[i, 2]]] <- sort(c(parent_seq, edge_mutation))
         }
     } else if (model=="finite sites" & (!is.null(l_seq))) {
         node_seq$node[[tree$n+1]] <- rep(0, l_seq)
-        if (tree$n == 2) {
-            iter_index <- 1:2
-        } else {iter_index <- c((tree$n+2):(2*tree$n-1), 1:tree$n)}
-        for (i in iter_index) {
-            traj <- tree_trajectory2(i, tree=tree)
-            parent_node <- traj$trajectory[2]
-            i_edge <- traj$edge_index[1]
-            edge_mutation <- mutations$site[mutations$edge_index==i_edge]
-            parent_seq <- node_seq$node[[parent_node]]
+        for (i in nrow(tree$edge):1) {
+            edge_mutation <- mutations$site[mutations$edge_index==i]
+            parent_seq <- node_seq$node[[tree$edge[i, 1]]]
             parent_seq[edge_mutation] <- 1 - parent_seq[edge_mutation]
-            node_seq$node[[i]] <- parent_seq
+            node_seq$node[[tree$edge[i, 2]]] <- parent_seq
         }
     }
     return(list(mutations=mutations, node_seq=node_seq))
