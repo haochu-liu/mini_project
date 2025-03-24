@@ -7,14 +7,20 @@ source("ape_like_tree/tree_trajectory.r")
 #' store in a dataframe: edge index, position(time), mutation
 #' infinite alleles and finite alleles by tracing lineages from root to leaf
 #' output: genotype for each leaf allele
-simmutation <- function(tree, rate, model="infinite sites", l_seq=NULL) {
+simmutation <- function(tree, rate, model="finite sites", l_seq=NULL) {
     if (!inherits(tree, "simtree")) {
         stop("Object must be of class 'simtree'")
     }
 
     l <- tree_length(tree=tree)
     n <- rpois(1, rate*l/2) # num of mutations | l ~ Poisson(rate*l/2)
-    if (n == 0) {return(list(mutations=NA, node_seq=NA))}
+    if (n == 0) {
+        mutations <- data.frame(edge_index = NA,
+            pos = NA,
+            site = NA)
+        node_seq <- data.frame(node = NA)
+        return(list(mutations=mutations, node_seq=node_seq))
+    }
 
     mutate_edges <- sample(1:nrow(tree$edge), n,
                            replace=TRUE, prob=tree$edge.length)

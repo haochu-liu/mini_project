@@ -67,3 +67,19 @@ hist(length_vec, probability = TRUE, col="gray", breaks=20,
      main = "Plot of total tree length and hypoexponential distribution",
      xlab = "total tree length", ylab = "Density")
 lines(x, length_density)
+
+mutation_mean <- c()
+for (n in 2:100) {
+  num <- c()
+  for (t in 1000) {
+    tree1 <- simcoale(n)
+    mutation_df <- simmutation(tree=tree1, rate=1, model="finite sites", l_seq = 5)
+    if (!is.na(mutation_df$mutations$edge_index[1])) {
+      num <- c(num, nrow(mutation_df$mutations))
+    } else {num <- c(num, 0)}
+  }
+  mutation_mean <- c(mutation_mean, mean(num))
+}
+
+plot(2:100, mutation_mean, xlab = "n", ylab = "mean of num of mutations")
+lines(2:100, cumsum(1/1:99), type = "l", col = "red")
