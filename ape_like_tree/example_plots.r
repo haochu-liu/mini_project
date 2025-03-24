@@ -83,3 +83,17 @@ for (n in 2:100) {
 
 plot(2:100, mutation_mean, xlab = "n", ylab = "mean of num of mutations")
 lines(2:100, cumsum(1/1:99), type = "l", col = "red")
+
+# mutation_mean <- c()
+# for (n in 2:100) {
+#   num <- c()
+#   for (t in 1000) {
+#     length_rate <- (n-1):1 / 2
+#     tree_l <- rhypoexp(1, rate=length_rate)
+#     num <- c(num, rpois(1, tree_l/2))
+#   }
+#   mutation_mean <- c(mutation_mean, mean(num))
+# }
+
+# plot(2:100, mutation_mean, xlab = "n", ylab = "mean of num of mutations")
+# lines(2:100, cumsum(1/1:99), type = "l", col = "red")
