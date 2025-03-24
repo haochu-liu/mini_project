@@ -69,7 +69,7 @@ hist(length_vec, probability = TRUE, col="gray", breaks=20,
 lines(x, length_density)
 
 mutation_mean <- c()
-for (n in 3:50) {
+for (n in 2:50) {
   num <- c()
   for (t in 1:100) {
     tree1 <- simcoale(n)
@@ -81,8 +81,8 @@ for (n in 3:50) {
   mutation_mean <- c(mutation_mean, mean(num))
 }
 
-plot(3:50, mutation_mean, xlab = "n", ylab = "mean of num of mutations")
-lines(3:50, cumsum(1/1:49)[2:49], type = "l", col = "red")
+plot(2:50, mutation_mean, xlab = "n", ylab = "mean of num of mutations")
+lines(2:50, cumsum(1/1:49), type = "l", col = "red")
 
 mutation_mean <- c()
 for (n in 2:100) {

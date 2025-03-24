@@ -52,7 +52,10 @@ simmutation <- function(tree, rate, model="finite sites", l_seq=NULL) {
         }
     } else if (model=="finite sites" & (!is.null(l_seq))) {
         node_seq$node[[tree$n+1]] <- rep(0, l_seq)
-        for (i in c((tree$n+2):(2*tree$n-1), 1:tree$n)) {
+        if (tree$n == 2) {
+            iter_index <- 1:2
+        } else {iter_index <- c((tree$n+2):(2*tree$n-1), 1:tree$n)}
+        for (i in iter_index) {
             traj <- tree_trajectory2(i, tree=tree)
             parent_node <- traj$trajectory[2]
             i_edge <- traj$edge_index[1]
