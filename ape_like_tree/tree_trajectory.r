@@ -2,7 +2,7 @@ tree_trajectory <- function(child, tree) {
   trajectory <- c(child)
   edge_index <- c()
   current_node <- child
-  
+  # complexity: O(n^2) in worst cases
   while (current_node != (tree$n + 1)) {
     # Find the parent of the given node
     parent_to_child <- which(tree$edge[, 2] == current_node)

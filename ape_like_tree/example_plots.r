@@ -6,6 +6,7 @@ source("ape_like_tree/simmutation.r")
 source("ape_like_tree/length_and_height.r")
 
 
+set.seed(100)
 n <- 10
 tree2 <- simcoale(n)
 str(tree2)
@@ -26,7 +27,7 @@ str(tree2_phylo)
 class(tree2_phylo)
 tree2_phylo$edge
 plot(tree2_phylo)
-nodelabels()
+# nodelabels()
 # edgelabels()
 
 df2_node <- df2$node_seq$node[1:n]
@@ -40,7 +41,7 @@ str(tree2_phylo)
 class(tree2_phylo)
 tree2_phylo$edge
 plot(tree2_phylo)
-nodelabels()
+# nodelabels()
 # edgelabels()
 
 height_vec <- c()
