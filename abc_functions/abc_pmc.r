@@ -45,7 +45,8 @@ abc_pmc <- function(obs, tol, kernel_func, p_theta, d_theta, p_s, n_iter, sigma=
     }
     w <- w_1 - logSumExp(w_1)
     theta_matrix <- theta_1_matrix
-    tau <- 2*var(theta_matrix)
+    print(var(theta_matrix))
+    tau <- sqrt(2*var(theta_matrix))
   }
 
   return(list(theta_matrix=theta_matrix, s_matrix=s_matrix))
