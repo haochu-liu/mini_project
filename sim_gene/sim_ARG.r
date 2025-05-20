@@ -46,8 +46,8 @@ sim_ARG <- function(n, rho) {
       append_node <- tibble(
         index = next_node,
         height = t_sum,
-        material = iv_set_intersect(append_edge$material[[1]],
-                                    append_edge$material[[2]])
+        material = list(iv_set_intersect(append_edge$material[[1]],
+                                         append_edge$material[[2]]))
       )
       node <- bind_rows(node, append_node)
       # updates for iteration
@@ -65,7 +65,7 @@ sim_ARG <- function(n, rho) {
         node2 = rep(leaf_node, 2),
         length = c(t_sum-node$height[leaf_index],
                    t_sum-node$height[leaf_index]),
-        material = node$material[[leaf_index]]
+        material = list(node$material[[leaf_index]])
       )
       edge <- bind_rows(edge, append_edge)
       # append root node
