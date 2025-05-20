@@ -5,6 +5,7 @@ sim_coale_recomb <- function(n, rho) {
 
   k = n
   t <- vector("numeric", length = 0) # vector of event times
+  t_sum <- 0
   edge <- tibble(
     node1 = integer(), # root node
     node2 = integer(), # leaf node
@@ -20,20 +21,36 @@ sim_coale_recomb <- function(n, rho) {
   next_node <- as.integer(2*n)
 
   while (k > 1) {
+    # sample a new event time
     event_time <- rexp(1, rate=k*(k-1+rho)/2)
     t <- c(t, event_time)
+    t_sum <- t_sum + event_time
+    # sample whether the event is a coalescent
     p_coale <- rbinom(n=1, size=1, prob=(k-1)/(k-1+rho))
     if (p_coale == 1) {
       # coalescent event
       leaf_node <- sample(pool, size=2, replace=FALSE)
-      append_edge <- matrix(NA, nrow = 2, ncol = 2)
-      append_edge[, 2] <- leaf_node
-      append_edge[, 1] <- next_node
-      edge <- rbind(edge, append_edge)
-      edge.material
-
-      edge.length[index] <- t_sum[i] - node.length[offspring_node]
-      node.length[next_node] <- t_sum[i]
+      leaf1_index <- which(node$index == leaf_node[1])
+      leaf2_index <- which(node$index == leaf_node[2])
+      # append edges
+      append_edge <- tibble(
+        node1 = rep(next_node, 2),
+        node2 = leaf_node,
+        length = c(t_sum-node$height[leaf1_index],
+                   t_sum-node$height[leaf2_index]),
+        material = list(node$material[[leaf1_index]],
+                        node$material[[leaf2_index]])
+      )
+      edge <- bind_rows(edge, append_edge)
+      # append root node
+      append_node <- tibble(
+        index = next_node,
+        height = t_sum,
+        material = iv_set_intersect(append_edge$material[[1]],
+                                    append_edge$material[[2]])
+      )
+      node <- bind_rows(node, append_node)
+      # updates for iteration
       pool <- c(setdiff(pool, leaf_node), next_node)
       next_node <- next_node + 1L
     }
