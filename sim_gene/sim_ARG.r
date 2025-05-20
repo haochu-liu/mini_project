@@ -1,4 +1,4 @@
-sim_coale_recomb <- function(n, rho) {
+sim_ARG <- function(n, rho) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   }
@@ -53,6 +53,36 @@ sim_coale_recomb <- function(n, rho) {
       # updates for iteration
       pool <- c(setdiff(pool, leaf_node), next_node)
       next_node <- next_node + 1L
+      k <- k - 1
+    } else {
+      # recombination event
+      u <- runif(1, min=0, max=1)
+      leaf_node <- sample(pool, size=1, replace=FALSE)
+      leaf_index <- which(node$index == leaf_node)
+      # append edges
+      append_edge <- tibble(
+        node1 = c(next_node, next_node + 1L),
+        node2 = rep(leaf_node, 2),
+        length = c(t_sum-node$height[leaf_index],
+                   t_sum-node$height[leaf_index]),
+        material = node$material[[leaf_index]]
+      )
+      edge <- bind_rows(edge, append_edge)
+      # append root node
+      append_node <- tibble(
+        index = c(next_node, next_node + 1L),
+        height = t_sum,
+        material = list(iv_set_intersect(iv(0, u), node$material[[leaf_index]]),
+                        iv_set_intersect(iv(u, 1), node$material[[leaf_index]]))
+      )
+      node <- bind_rows(node, append_node)
+      # updates for iteration
+      pool <- c(setdiff(pool, leaf_node), next_node, next_node+1L)
+      next_node <- next_node + 2L
+      k <- k + 1
     }
   }
+  ARG = list(edge=edge, node=node, waiting_time=t, sum_time=t_sum, n=n, rho=rho)
+  class(ARG) <- "simARG"
+  return(ARG)
 }
