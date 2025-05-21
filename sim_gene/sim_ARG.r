@@ -54,8 +54,8 @@ sim_ARG <- function(n, rho) {
       append_node <- tibble(
         index = next_node,
         height = t_sum,
-        material = list(iv_set_intersect(append_edge$material[[1]],
-                                         append_edge$material[[2]]))
+        material = list(iv_set_union(append_edge$material[[1]],
+                                     append_edge$material[[2]]))
       )
       node <- bind_rows(node, append_node)
       # updates for iteration
