@@ -1,3 +1,7 @@
+#' Input: number of leaf alleles, recombination parameter
+#' Create a full ARG with coalescent and recombination
+#' Output: edge dataframe, node dataframe, waiting time for each event,
+#' total time, number of leaf alleles, and recombination parameter
 sim_ARG <- function(n, rho) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
@@ -15,7 +19,7 @@ sim_ARG <- function(n, rho) {
   node <- tibble(
     index = as.integer(1:n), # node number
     height = rep(0, n), # node height to recent time
-    material = list(iv(0, 1))
+    material = list(iv(0, 1)) # node material interval
   )
   pool <- as.integer(1:n)
   next_node <- as.integer(2*n)
