@@ -47,9 +47,16 @@ sim_mutation <- function(tree, theta) {
 
   # simulate the mutations at every node
   for (i in nrow(tree$edge):1) {
-    edge_mutation <- mutations$site[mutations$edge_index==i]
-    parent_seq <- node_seq$node[[tree$edge[i, 1]]]
-    node_seq$node[[tree$edge[i, 2]]] <- sort(c(parent_seq, edge_mutation))
+    edge_mutation <- new_tree$mutation$site[new_tree$mutation$edge_index==i]
+    parent_seq <- new_tree$node$gene[[tree$edge$node1[i]]]
+    new_tree$node$gene[[tree$edge$node2[i]]] <- sort(c(parent_seq,
+      edge_mutation, new_tree$node$gene[[tree$edge$node2[i]]]))
   }
-  return(list(mutations=mutations, node_seq=node_seq))
+  # convert to string
+  new_tree$node$gene_str <- NA
+  for (i in 1:nrow(new_tree$node)) {
+    new_tree$node$gene_str[i] <- paste0("[", paste(round(new_tree$node$gene[[i]], 3),
+                                        collapse = ", "), "]")
+  }
+  return(new_tree)
 }
