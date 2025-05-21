@@ -15,7 +15,7 @@ sim_mutation <- function(tree, theta) {
     pos = NA,
     site = NA
   )
-  new_tree$node$gene <- numeric()
+  new_tree$node$gene <- list(numeric())
 
   # if there is no mutation
   if (n == 0) {
@@ -46,12 +46,10 @@ sim_mutation <- function(tree, theta) {
   }
 
   # simulate the mutations at every node
-  node_seq$node <- as.list(node_seq$node)
-      node_seq$node[[tree$n+1]] <- numeric(0)
-      for (i in nrow(tree$edge):1) {
-          edge_mutation <- mutations$site[mutations$edge_index==i]
-          parent_seq <- node_seq$node[[tree$edge[i, 1]]]
-          node_seq$node[[tree$edge[i, 2]]] <- sort(c(parent_seq, edge_mutation))
-      }
+  for (i in nrow(tree$edge):1) {
+    edge_mutation <- mutations$site[mutations$edge_index==i]
+    parent_seq <- node_seq$node[[tree$edge[i, 1]]]
+    node_seq$node[[tree$edge[i, 2]]] <- sort(c(parent_seq, edge_mutation))
+  }
   return(list(mutations=mutations, node_seq=node_seq))
 }
