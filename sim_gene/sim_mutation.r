@@ -27,30 +27,36 @@ sim_mutation <- function(tree, theta) {
   mutate_edge <- sample(1:nrow(tree$edge), n,
                         replace=TRUE, prob=tree$edge$length)
   mutate_site <- runif(n)
-  drop_mutation <- c()
+  keep_mutation <- c()
   for (i in 1:n) {
     edge_iv <- tree$edge$material[[mutate_edge[i]]]
     site_iv <- iv(mutate_site[i], mutate_site[i]+.Machine$double.eps)
-    if (!iv_count_overlaps(site_iv, edge_iv)) {
-      drop_mutation <- c(drop_mutation, i)
+    if (iv_count_overlaps(site_iv, edge_iv)) {
+      keep_mutation <- c(keep_mutation, i)
     }
   }
-  mutate_edge <- mutate_edge[-drop_mutation]
-  mutate_site <- mutate_site[-drop_mutation]
+  mutate_edge <- mutate_edge[keep_mutation]
+  mutate_site <- mutate_site[keep_mutation]
+  if (!length(keep_mutation)) {
+    new_tree$node$gene_str <- "[]"
+    return(new_tree)
+  }
   # dataframe mutations to store information of mutations
-  new_tree$mutation <- tibble(edge_index = mutate_edge,
-                              pos = NA,
-                              site = mutate_site)
+  new_tree$mutation <- tibble(
+    edge_index = mutate_edge,
+    pos = rep(NA, length(mutate_edge)),
+    site = mutate_site
+  )
   for (i in 1:length(mutate_edge)) {
-    new_tree$mutation$pos <- runif(1, max=tree$edge$length[mutate_edge[i]])
+    new_tree$mutation$pos[i] <- runif(1, max=tree$edge$length[mutate_edge[i]])
   }
 
   # simulate the mutations at every node
   for (i in nrow(tree$edge):1) {
     edge_mutation <- new_tree$mutation$site[new_tree$mutation$edge_index==i]
-    parent_seq <- new_tree$node$gene[[tree$edge$node1[i]]]
-    new_tree$node$gene[[tree$edge$node2[i]]] <- sort(c(parent_seq,
-      edge_mutation, new_tree$node$gene[[tree$edge$node2[i]]]))
+    parent_seq <- new_tree$node$gene[[which(tree$node$index==tree$edge$node1[i])]]
+    new_tree$node$gene[[which(tree$node$index==tree$edge$node2[i])]] <- sort(c(parent_seq,
+      edge_mutation, new_tree$node$gene[[which(tree$node$index==tree$edge$node2[i])]]))
   }
   # convert to string
   new_tree$node$gene_str <- NA
