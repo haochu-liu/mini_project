@@ -1,13 +1,17 @@
 #' Input: number of leaf alleles, recombination parameter
 #' Create a full ARG with coalescent and recombination
+#' Edge dataframe: root node, leaf node, edge length, edge material interval
+#' Node dataframe: node index, node height, node material interval
 #' Output: edge dataframe, node dataframe, waiting time for each event,
-#' total time, number of leaf alleles, and recombination parameter
+#' total time, number of lineages at each event time, number of leaf alleles,
+#' and recombination parameter
 sim_ARG <- function(n, rho) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   }
 
   k = n
+  k_vector <- c(k)
   t <- vector("numeric", length = 0) # vector of event times
   t_sum <- 0
   edge <- tibble(
@@ -85,8 +89,10 @@ sim_ARG <- function(n, rho) {
       next_node <- next_node + 2L
       k <- k + 1
     }
+    k_vector <- c(k_vector, k)
   }
-  ARG = list(edge=edge, node=node, waiting_time=t, sum_time=t_sum, n=n, rho=rho)
+  ARG = list(edge=edge, node=node, waiting_time=t, sum_time=t_sum, k=k_vector,
+             n=n, rho=rho)
   class(ARG) <- "simARG"
   return(ARG)
 }
