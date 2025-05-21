@@ -73,7 +73,8 @@ sim_ARG <- function(n, rho) {
         node2 = rep(leaf_node, 2),
         length = c(t_sum-node$height[leaf_index],
                    t_sum-node$height[leaf_index]),
-        material = list(node$material[[leaf_index]])
+        material = list(iv_set_intersect(iv(0, u), node$material[[leaf_index]]),
+                        iv_set_intersect(iv(u, 1), node$material[[leaf_index]]))
       )
       edge <- bind_rows(edge, append_edge)
       # append root node
