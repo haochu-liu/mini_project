@@ -9,30 +9,43 @@ sim_mutation <- function(tree, theta) {
 
   l <- sum(tree$edge$length)
   n <- rpois(1, theta*l/2) # num of mutations | l ~ Poisson(theta*l/2)
+  new_tree <- tree
+  new_tree$mutation <- tibble(
+    edge_index = NA,
+    pos = NA,
+    site = NA
+  )
+  new_tree$node$gene <- numeric()
 
   # if there is no mutation
   if (n == 0) {
-    mutations <- data.frame(edge_index = NA,
-        pos = NA,
-        site = NA)
-    node_seq <- data.frame(node = NA)
-    return(list(mutations=mutations, node_seq=node_seq))
+    new_tree$node$gene_str <- "[]"
+    return(new_tree)
   }
 
   # if there are mutations
-  mutate_edges <- sample(1:nrow(tree$edge), n,
-                         replace=TRUE, prob=tree$edge.length)
+  mutate_edge <- sample(1:nrow(tree$edge), n,
+                        replace=TRUE, prob=tree$edge$length)
   mutate_site <- runif(n)
-  # dataframe mutations to store information of every mutation
-  mutations <- data.frame(edge_index = mutate_edges,
-                          pos = rep(NA, n),
-                          site = mutate_site)
+  drop_mutation <- c()
   for (i in 1:n) {
-      mutations[i, 2] <- runif(1, max=tree$edge.length[mutate_edges[i]])
+    edge_iv <- tree$edge$material[[mutate_edge[i]]]
+    site_iv <- iv(mutate_site[i], mutate_site[i]+.Machine$double.eps)
+    if (!iv_count_overlaps(site_iv, edge_iv)) {
+      drop_mutation <- c(drop_mutation, i)
+    }
   }
-  
-  # simulate the mutations before every node
-  node_seq <- data.frame(node=rep(NA, 2*tree$n-1))
+  mutate_edge <- mutate_edge[-drop_mutation]
+  mutate_site <- mutate_site[-drop_mutation]
+  # dataframe mutations to store information of mutations
+  new_tree$mutation <- tibble(edge_index = mutate_edge,
+                              pos = NA,
+                              site = mutate_site)
+  for (i in 1:length(mutate_edge)) {
+    new_tree$mutation$pos <- runif(1, max=tree$edge$length[mutate_edge[i]])
+  }
+
+  # simulate the mutations at every node
   node_seq$node <- as.list(node_seq$node)
       node_seq$node[[tree$n+1]] <- numeric(0)
       for (i in nrow(tree$edge):1) {
