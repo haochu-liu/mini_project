@@ -1,3 +1,6 @@
+#' Input: tree (simARG), site location for local ARG
+#' Select edges for local tree graph
+#' Output: local ARG
 local_ARG <- function(tree, location) {
   if (!inherits(tree, "simARG")) {
     stop("Object must be of class 'simARG'")
