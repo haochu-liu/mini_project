@@ -13,5 +13,6 @@ local_ARG <- function(tree, location) {
   local_tree <- tree
   local_tree$edge <- tree$edge[keep_edge, ]
 
+  class(local_tree) <- "localARG"
   return(local_tree)
 }
