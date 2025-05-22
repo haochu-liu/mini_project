@@ -2,9 +2,11 @@ library(ivs)
 library(tibble)
 library(dplyr)
 library(igraph)
+library(ape)
 source("sim_gene/sim_ARG.r")
 source("sim_gene/sim_mutation.r")
 source("sim_gene/local_ARG.r")
+source("sim_gene/localARG_to_phylo.r")
 
 
 set.seed(10)
@@ -22,3 +24,5 @@ local_g <- graph_from_edgelist(local_tree_matrix, directed = FALSE)
 local_g <- delete_vertices(local_g, V(local_g)[degree(local_g) == 0])
 plot(local_g)
 
+phylo_tree <- localARG_to_phylo(local_tree)
+plot(phylo_tree)
