@@ -55,8 +55,8 @@ sim_mutation <- function(tree, theta) {
   for (i in nrow(tree$edge):1) {
     edge_mutation <- new_tree$mutation$site[new_tree$mutation$edge_index==i]
     parent_seq <- new_tree$node$gene[[which(tree$node$index==tree$edge$node1[i])]]
-    new_tree$node$gene[[which(tree$node$index==tree$edge$node2[i])]] <- sort(c(parent_seq,
-      edge_mutation, new_tree$node$gene[[which(tree$node$index==tree$edge$node2[i])]]))
+    new_tree$node$gene[[which(tree$node$index==tree$edge$node2[i])]] <- unique(sort(c(parent_seq,
+      edge_mutation, new_tree$node$gene[[which(tree$node$index==tree$edge$node2[i])]])))
   }
   # convert to string
   new_tree$node$gene_str <- NA
