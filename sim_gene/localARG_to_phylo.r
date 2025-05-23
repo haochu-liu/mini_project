@@ -1,3 +1,6 @@
+#' Input: tree (localARG), label
+#' Convert the local ARG to a phylo object that can be plotted by ape::plot.phylo
+#' Output: a phylo object
 localARG_to_phylo <- function(tree, label=FALSE) {
   if (!inherits(tree, "localARG")) {
     stop("Object must be of class 'localARG'")

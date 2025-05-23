@@ -1,7 +1,7 @@
 #' Input: tree (simARG), mutation rate
 #' Add mutation uniformly to edges
 #' Store in a dataframe: edge index, position(time), mutation
-#' Output: add mutation dataframe and a new column in node dataframe of genotype 
+#' Output: add mutation dataframe and a new column in node dataframe of genotype
 sim_mutation <- function(tree, theta) {
   if (!inherits(tree, "simARG")) {
     stop("Object must be of class 'simARG'")
