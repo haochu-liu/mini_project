@@ -45,6 +45,7 @@ We can consider the coalescent and recombination as a birth and death process. L
 $$
 \frac{dN(t)}{dt} = \frac{\rho N(t) - N(t)^2 + N(t)}{2}.
 $$
+
 ## Event Time
 
 Run the simulation 10 times with initially $20$ alleles and $\rho=1$.
