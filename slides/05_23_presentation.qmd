@@ -37,7 +37,7 @@ plot(g)
 
 ## Birth and Death Process
 
-We can consider the coalescent and recombination as a birth and death process. Let $N(t)$ be the number of alleles at time $t$. The birth rate is $\rho N(t)/2$, and the death rate is $N(t)(N(t)-1)/2$. And the deterministic expression of $N(t)$ is $$
+We can consider the coalescent and recombination as a birth and death process. Let $N(t)$ be the number of lineages at time $t$. The birth rate is $\rho N(t)/2$, and the death rate is $N(t)(N(t)-1)/2$. And the deterministic expression of $N(t)$ is $$
 \frac{dN(t)}{dt} = \frac{\rho N(t) - N(t)^2 + N(t)}{2}.
 $$
 
@@ -57,7 +57,7 @@ tree_list <- map(1:n_trees, function(i) {
   tibble(
     x = x_values,
     y = y_values,
-    id = paste0("ARG_", i) # Identifier for each step function
+    id = paste0("ARG_", i)
   )
 })
 step_df <- bind_rows(tree_list)
@@ -95,7 +95,7 @@ ggplot() +
   labs(
     title = "Birth and Death Process",
     x = "Time",
-    y = "Number of alleles",
+    y = "Number of lineages",
     color = "ARG ID"
   ) +
 
