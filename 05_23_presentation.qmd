@@ -39,13 +39,13 @@ g <- delete_vertices(g, V(g)[degree(g) == 0])
 plot(g)
 ```
 
-## Event Time
+## Birth and Death Process
 
 We can consider the coalescent and recombination as a birth and death process. Let $N(t)$ be the number of alleles at time $t$. The birth rate is $\rho N(t)/2$, and the death rate is $N(t)(N(t)-1)/2$. And the deterministic expression of $N(t)$ is $$
 \frac{dN(t)}{dt} = \frac{\rho N(t) - N(t)^2 + N(t)}{2}.
 $$
 
-## Event Time
+## Birth and Death Process
 
 Run the simulation 10 times with initially $20$ alleles and $\rho=1$.
 
