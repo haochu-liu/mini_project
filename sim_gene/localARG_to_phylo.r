@@ -30,6 +30,7 @@ localARG_to_phylo <- function(tree, label=FALSE) {
   }
 
   if (label & !is.null(tree$node$gene_str)) {
+    leaf_labels <- c()
     for (i in 1:tree$n) {
       node_str <- paste(i, tree$node$gene_str[i], sep=":")
       leaf_labels <- c(leaf_labels, node_str)

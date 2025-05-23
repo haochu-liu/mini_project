@@ -26,7 +26,7 @@ I build a function `sim_ARG` to generate the full ARG.
 #| echo: true
 #| code-fold: true
 #| code-summary: "expand for full code"
-source("sim_gene/sim_ARG.r")
+source("../sim_gene/sim_ARG.r")
 set.seed(11)
 tree <- sim_ARG(5, 1)
 tree_matrix <- as.matrix(tree$edge[, c(1, 2)])
@@ -37,8 +37,7 @@ plot(g)
 
 ## Birth and Death Process
 
-We can consider the coalescent and recombination as a birth and death process. Let $N(t)$ be the number of alleles at time $t$. The birth rate is $\rho N(t)/2$, and the death rate is $N(t)(N(t)-1)/2$. And the deterministic expression of $N(t)$ is
-$$
+We can consider the coalescent and recombination as a birth and death process. Let $N(t)$ be the number of alleles at time $t$. The birth rate is $\rho N(t)/2$, and the death rate is $N(t)(N(t)-1)/2$. And the deterministic expression of $N(t)$ is $$
 \frac{dN(t)}{dt} = \frac{\rho N(t) - N(t)^2 + N(t)}{2}.
 $$
 
@@ -88,10 +87,10 @@ colnames(ode_df)[1] <- "x"
 ggplot() +
   # 10 step functions 
   geom_step(data = step_df, aes(x = x, y = y, group = id, color = id),
-            size = 0.7, alpha = 0.7) +
+            linewidth = 0.7, alpha = 0.7) +
   # one continuous function
   geom_line(data = ode_df, aes(x = x, y = y), color = "black",
-            linetype = "solid", size = 1.2) +
+            linetype = "solid", linewidth = 1.2) +
   
   labs(
     title = "Birth and Death Process",
@@ -113,8 +112,8 @@ Simulate mutations by adding point uniformly on the full ARG.
 #| echo: true
 #| code-fold: true
 #| code-summary: "expand for full code"
-source("sim_gene/sim_mutation.r")
-tree_mutation <- sim_mutation(tree, 2)
+source("../sim_gene/sim_mutation.r")
+tree_mutation <- sim_mutation(tree, 1)
 tree_mutation$node
 ```
 
@@ -126,8 +125,8 @@ Construct local ARG by select the edges that containing the genetic material we 
 #| echo: true
 #| code-fold: true
 #| code-summary: "expand for full code"
-source("sim_gene/local_ARG.r")
-local_tree1 <- local_ARG(tree, 0.1)
+source("../sim_gene/local_ARG.r")
+local_tree1 <- local_ARG(tree_mutation, 0.1)
 local_tree1_matrix <- as.matrix(local_tree1$edge[, c(1, 2)])
 local_g1 <- graph_from_edgelist(local_tree1_matrix, directed = FALSE)
 local_g1 <- delete_vertices(local_g1, V(local_g1)[degree(local_g1) == 0])
@@ -140,7 +139,7 @@ plot(local_g1)
 #| echo: true
 #| code-fold: true
 #| code-summary: "expand for full code"
-local_tree2 <- local_ARG(tree, 0.2)
+local_tree2 <- local_ARG(tree_mutation, 0.2)
 local_tree2_matrix <- as.matrix(local_tree2$edge[, c(1, 2)])
 local_g2 <- graph_from_edgelist(local_tree2_matrix, directed = FALSE)
 local_g2 <- delete_vertices(local_g2, V(local_g2)[degree(local_g2) == 0])
@@ -156,8 +155,8 @@ Convert the our local ARG to a `phylo` object that can be plotted by `ape::plot.
 #| code-fold: true
 #| code-summary: "expand for full code"
 library(ape)
-source("sim_gene/localARG_to_phylo.r")
-phylo_tree1 <- localARG_to_phylo(local_tree1)
+source("../sim_gene/localARG_to_phylo.r")
+phylo_tree1 <- localARG_to_phylo(local_tree1, label=TRUE)
 plot(phylo_tree1)
 ```
 
@@ -167,8 +166,6 @@ plot(phylo_tree1)
 #| echo: true
 #| code-fold: true
 #| code-summary: "expand for full code"
-library(ape)
-source("sim_gene/localARG_to_phylo.r")
-phylo_tree2 <- localARG_to_phylo(local_tree2)
+phylo_tree2 <- localARG_to_phylo(local_tree2, label=TRUE)
 plot(phylo_tree2)
 ```
