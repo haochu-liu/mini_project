@@ -215,7 +215,7 @@ Haochu
 <details class="code-fold">
 <summary>expand for full code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="fu">source</span>(<span class="st">"sim_gene/sim_ARG.r"</span>)</span>
-<span id="cb1-2"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb1-2"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">11</span>)</span>
 <span id="cb1-3"><a href=""></a>tree <span class="ot">&lt;-</span> <span class="fu">sim_ARG</span>(<span class="dv">5</span>, <span class="dv">1</span>)</span>
 <span id="cb1-4"><a href=""></a>tree_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(tree<span class="sc">$</span>edge[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)])</span>
 <span id="cb1-5"><a href=""></a>g <span class="ot">&lt;-</span> <span class="fu">graph_from_edgelist</span>(tree_matrix, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
@@ -225,14 +225,14 @@ Haochu
 
 </div>
 <img data-src="05_23_presentation_files/figure-revealjs/unnamed-chunk-2-1.png" width="960" class="r-stretch"></section>
-<section id="event-time" class="slide level2">
-<h2>Event Time</h2>
+<section id="birth-and-death-process" class="slide level2">
+<h2>Birth and Death Process</h2>
 <p>We can consider the coalescent and recombination as a birth and death process. Let <span class="math inline">\(N(t)\)</span> be the number of alleles at time <span class="math inline">\(t\)</span>. The birth rate is <span class="math inline">\(\rho N(t)/2\)</span>, and the death rate is <span class="math inline">\(N(t)(N(t)-1)/2\)</span>. And the deterministic expression of <span class="math inline">\(N(t)\)</span> is <span class="math display">\[
 \frac{dN(t)}{dt} = \frac{\rho N(t) - N(t)^2 + N(t)}{2}.
 \]</span></p>
 </section>
-<section id="event-time-1" class="slide level2">
-<h2>Event Time</h2>
+<section id="birth-and-death-process-1" class="slide level2">
+<h2>Birth and Death Process</h2>
 <p>Run the simulation 10 times with initially <span class="math inline">\(20\)</span> alleles and <span class="math inline">\(\rho=1\)</span>.</p>
 
 <img data-src="05_23_presentation_files/figure-revealjs/unnamed-chunk-3-1.png" width="960" class="r-stretch"></section>
@@ -248,23 +248,23 @@ Haochu
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 15 × 5
-   index  height material      gene      gene_str             
-   &lt;int&gt;   &lt;dbl&gt; &lt;list&gt;        &lt;list&gt;    &lt;chr&gt;                
- 1     1 0       &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [2]&gt; [0.137, 0.48]        
- 2     2 0       &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [3]&gt; [0.147, 0.226, 0.266]
- 3     3 0       &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [2]&gt; [0.226, 0.266]       
- 4     4 0       &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [3]&gt; [0.147, 0.226, 0.266]
- 5     5 0       &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [2]&gt; [0.226, 0.266]       
- 6    10 0.00120 &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [3]&gt; [0.147, 0.226, 0.266]
- 7    11 0.306   &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [2]&gt; [0.226, 0.266]       
- 8    12 0.358   &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [2]&gt; [0.226, 0.266]       
- 9    13 1.52    &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []                   
-10    14 1.52    &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [2]&gt; [0.226, 0.266]       
-11    15 1.81    &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []                   
-12    16 1.81    &lt;iv&lt;dbl&gt; [0]&gt; &lt;dbl [0]&gt; []                   
-13    17 1.95    &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []                   
-14    18 2.31    &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []                   
-15    19 2.46    &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []                   </code></pre>
+   index height material      gene      gene_str
+   &lt;int&gt;  &lt;dbl&gt; &lt;list&gt;        &lt;list&gt;    &lt;chr&gt;   
+ 1     1 0      &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+ 2     2 0      &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+ 3     3 0      &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+ 4     4 0      &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+ 5     5 0      &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.521] 
+ 6    10 0.0642 &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+ 7    11 0.0717 &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+ 8    12 0.0717 &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+ 9    13 0.174  &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+10    14 0.380  &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+11    15 0.635  &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [1]&gt; [0.216] 
+12    16 1.28   &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []      
+13    17 1.28   &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []      
+14    18 1.28   &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []      
+15    19 1.60   &lt;iv&lt;dbl&gt; [1]&gt; &lt;dbl [0]&gt; []      </code></pre>
 </div>
 </div>
 </section>
@@ -275,30 +275,57 @@ Haochu
 <details class="code-fold">
 <summary>expand for full code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="fu">source</span>(<span class="st">"sim_gene/local_ARG.r"</span>)</span>
-<span id="cb4-2"><a href=""></a>local_tree <span class="ot">&lt;-</span> <span class="fu">local_ARG</span>(tree, <span class="fl">0.5</span>)</span>
-<span id="cb4-3"><a href=""></a>local_tree_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(local_tree<span class="sc">$</span>edge[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)])</span>
-<span id="cb4-4"><a href=""></a>local_g <span class="ot">&lt;-</span> <span class="fu">graph_from_edgelist</span>(local_tree_matrix, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb4-5"><a href=""></a>local_g <span class="ot">&lt;-</span> <span class="fu">delete_vertices</span>(local_g, <span class="fu">V</span>(local_g)[<span class="fu">degree</span>(local_g) <span class="sc">==</span> <span class="dv">0</span>])</span>
-<span id="cb4-6"><a href=""></a><span class="fu">plot</span>(local_g)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-2"><a href=""></a>local_tree1 <span class="ot">&lt;-</span> <span class="fu">local_ARG</span>(tree, <span class="fl">0.1</span>)</span>
+<span id="cb4-3"><a href=""></a>local_tree1_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(local_tree1<span class="sc">$</span>edge[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)])</span>
+<span id="cb4-4"><a href=""></a>local_g1 <span class="ot">&lt;-</span> <span class="fu">graph_from_edgelist</span>(local_tree1_matrix, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-5"><a href=""></a>local_g1 <span class="ot">&lt;-</span> <span class="fu">delete_vertices</span>(local_g1, <span class="fu">V</span>(local_g1)[<span class="fu">degree</span>(local_g1) <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb4-6"><a href=""></a><span class="fu">plot</span>(local_g1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
 <img data-src="05_23_presentation_files/figure-revealjs/unnamed-chunk-5-1.png" width="960" class="r-stretch"></section>
 <section id="local-arg-1" class="slide level2">
 <h2>Local ARG</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>expand for full code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>local_tree2 <span class="ot">&lt;-</span> <span class="fu">local_ARG</span>(tree, <span class="fl">0.2</span>)</span>
+<span id="cb5-2"><a href=""></a>local_tree2_matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(local_tree2<span class="sc">$</span>edge[, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)])</span>
+<span id="cb5-3"><a href=""></a>local_g2 <span class="ot">&lt;-</span> <span class="fu">graph_from_edgelist</span>(local_tree2_matrix, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb5-4"><a href=""></a>local_g2 <span class="ot">&lt;-</span> <span class="fu">delete_vertices</span>(local_g2, <span class="fu">V</span>(local_g2)[<span class="fu">degree</span>(local_g2) <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb5-5"><a href=""></a><span class="fu">plot</span>(local_g2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="05_23_presentation_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
+<section id="local-arg-2" class="slide level2">
+<h2>Local ARG</h2>
 <p>Convert the our local ARG to a <code>phylo</code> object that can be plotted by <code>ape::plot.phylo</code>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>expand for full code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">library</span>(ape)</span>
-<span id="cb5-2"><a href=""></a><span class="fu">source</span>(<span class="st">"sim_gene/localARG_to_phylo.r"</span>)</span>
-<span id="cb5-3"><a href=""></a>phylo_tree <span class="ot">&lt;-</span> <span class="fu">localARG_to_phylo</span>(local_tree)</span>
-<span id="cb5-4"><a href=""></a><span class="fu">plot</span>(phylo_tree)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">library</span>(ape)</span>
+<span id="cb6-2"><a href=""></a><span class="fu">source</span>(<span class="st">"sim_gene/localARG_to_phylo.r"</span>)</span>
+<span id="cb6-3"><a href=""></a>phylo_tree1 <span class="ot">&lt;-</span> <span class="fu">localARG_to_phylo</span>(local_tree1)</span>
+<span id="cb6-4"><a href=""></a><span class="fu">plot</span>(phylo_tree1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="05_23_presentation_files/figure-revealjs/unnamed-chunk-7-1.png" width="960" class="r-stretch"></section>
+<section id="local-arg-3" class="slide level2">
+<h2>Local ARG</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>expand for full code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">library</span>(ape)</span>
+<span id="cb7-2"><a href=""></a><span class="fu">source</span>(<span class="st">"sim_gene/localARG_to_phylo.r"</span>)</span>
+<span id="cb7-3"><a href=""></a>phylo_tree2 <span class="ot">&lt;-</span> <span class="fu">localARG_to_phylo</span>(local_tree2)</span>
+<span id="cb7-4"><a href=""></a><span class="fu">plot</span>(phylo_tree2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 
 </div>
 
-<img data-src="05_23_presentation_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch"></section>
+<img data-src="05_23_presentation_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

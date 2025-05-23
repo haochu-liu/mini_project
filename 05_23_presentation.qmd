@@ -31,7 +31,7 @@ I build a function `sim_ARG` to generate the full ARG.
 #| code-fold: true
 #| code-summary: "expand for full code"
 source("sim_gene/sim_ARG.r")
-set.seed(10)
+set.seed(11)
 tree <- sim_ARG(5, 1)
 tree_matrix <- as.matrix(tree$edge[, c(1, 2)])
 g <- graph_from_edgelist(tree_matrix, directed = FALSE)
@@ -41,7 +41,8 @@ plot(g)
 
 ## Birth and Death Process
 
-We can consider the coalescent and recombination as a birth and death process. Let $N(t)$ be the number of alleles at time $t$. The birth rate is $\rho N(t)/2$, and the death rate is $N(t)(N(t)-1)/2$. And the deterministic expression of $N(t)$ is $$
+We can consider the coalescent and recombination as a birth and death process. Let $N(t)$ be the number of alleles at time $t$. The birth rate is $\rho N(t)/2$, and the death rate is $N(t)(N(t)-1)/2$. And the deterministic expression of $N(t)$ is
+$$
 \frac{dN(t)}{dt} = \frac{\rho N(t) - N(t)^2 + N(t)}{2}.
 $$
 
@@ -130,11 +131,24 @@ Construct local ARG by select the edges that containing the genetic material we 
 #| code-fold: true
 #| code-summary: "expand for full code"
 source("sim_gene/local_ARG.r")
-local_tree <- local_ARG(tree, 0.5)
-local_tree_matrix <- as.matrix(local_tree$edge[, c(1, 2)])
-local_g <- graph_from_edgelist(local_tree_matrix, directed = FALSE)
-local_g <- delete_vertices(local_g, V(local_g)[degree(local_g) == 0])
-plot(local_g)
+local_tree1 <- local_ARG(tree, 0.1)
+local_tree1_matrix <- as.matrix(local_tree1$edge[, c(1, 2)])
+local_g1 <- graph_from_edgelist(local_tree1_matrix, directed = FALSE)
+local_g1 <- delete_vertices(local_g1, V(local_g1)[degree(local_g1) == 0])
+plot(local_g1)
+```
+
+## Local ARG
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+local_tree2 <- local_ARG(tree, 0.2)
+local_tree2_matrix <- as.matrix(local_tree2$edge[, c(1, 2)])
+local_g2 <- graph_from_edgelist(local_tree2_matrix, directed = FALSE)
+local_g2 <- delete_vertices(local_g2, V(local_g2)[degree(local_g2) == 0])
+plot(local_g2)
 ```
 
 ## Local ARG
@@ -147,6 +161,18 @@ Convert the our local ARG to a `phylo` object that can be plotted by `ape::plot.
 #| code-summary: "expand for full code"
 library(ape)
 source("sim_gene/localARG_to_phylo.r")
-phylo_tree <- localARG_to_phylo(local_tree)
-plot(phylo_tree)
+phylo_tree1 <- localARG_to_phylo(local_tree1)
+plot(phylo_tree1)
+```
+
+## Local ARG
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+library(ape)
+source("sim_gene/localARG_to_phylo.r")
+phylo_tree2 <- localARG_to_phylo(local_tree2)
+plot(phylo_tree2)
 ```
