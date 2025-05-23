@@ -18,10 +18,6 @@ library(purrr)
 library(deSolve)
 ```
 
-## Quarto
-
-This is my first time using Quarto.
-
 ## Simulate Full ARG
 
 I build a function `sim_ARG` to generate the full ARG.
