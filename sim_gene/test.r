@@ -16,11 +16,9 @@ tree <- sim_ARG(5, 1)
 tree_matrix <- as.matrix(tree$edge[, c(1, 2)])
 g <- graph_from_edgelist(tree_matrix, directed = FALSE)
 g <- delete_vertices(g, V(g)[degree(g) == 0])
-layout_coords <- layout_as_tree(g, root=nrow(tree$node))
-leaf_nodes_indices <- 1:tree$n
-min_level <- min(layout_coords[leaf_nodes_indices, 2])
-layout_coords[leaf_nodes_indices, 2] <- min_level
-plot.igraph(g, layout=layout_coords)
+layout_coord <- ARG_igraph(tree)
+plot.igraph(g, layout=layout_coord)
+plot.igraph(g)
 tree_mutation <- sim_mutation(tree, 2)
 
 local_tree1 <- local_ARG(tree_mutation, 0.1)
