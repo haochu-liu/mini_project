@@ -7,8 +7,8 @@ library(purrr)
 library(deSolve)
 source("sim_gene/sim_ARG.r")
 source("sim_gene/sim_mutation.r")
-source("sim_gene/local_ARG.r")
-source("sim_gene/localARG_to_phylo.r")
+source("sim_gene/local_tree.r")
+source("sim_gene/localtree_to_phylo.r")
 
 
 set.seed(11)
@@ -21,13 +21,13 @@ plot.igraph(g, layout=layout_coord)
 plot.igraph(g)
 tree_mutation <- sim_mutation(tree, 2)
 
-local_tree1 <- local_ARG(tree_mutation, 0.1)
+local_tree1 <- local_tree(tree_mutation, 0.1)
 local_tree1_matrix <- as.matrix(local_tree1$edge[, c(1, 2)])
 local_g1 <- graph_from_edgelist(local_tree1_matrix, directed = FALSE)
 local_g1 <- delete_vertices(local_g1, V(local_g1)[degree(local_g1) == 0])
 plot(local_g1)
 
-local_tree2 <- local_ARG(tree_mutation, 0.2)
+local_tree2 <- local_tree(tree_mutation, 0.2)
 local_tree2_matrix <- as.matrix(local_tree2$edge[, c(1, 2)])
 local_g2 <- graph_from_edgelist(local_tree2_matrix, directed = FALSE)
 local_g2 <- delete_vertices(local_g2, V(local_g2)[degree(local_g2) == 0])
@@ -35,10 +35,10 @@ plot(local_g2)
 
 library(ape)
 
-phylo_tree1 <- localARG_to_phylo(local_tree1, label=TRUE)
+phylo_tree1 <- localtree_to_phylo(local_tree1, label=TRUE)
 plot(phylo_tree1)
 
-phylo_tree2 <- localARG_to_phylo(local_tree2, label=TRUE)
+phylo_tree2 <- localtree_to_phylo(local_tree2, label=TRUE)
 plot(phylo_tree2)
 
 n_trees <- 10

@@ -1,7 +1,7 @@
-#' Input: tree (simARG), site location for local ARG
+#' Input: tree (simARG), site location for local tree
 #' Select edges for local tree graph
-#' Output: local ARG
-local_ARG <- function(tree, location) {
+#' Output: local tree
+local_tree <- function(tree, location) {
   if (!inherits(tree, "simARG")) {
     stop("Object must be of class 'simARG'")
   }
@@ -16,6 +16,6 @@ local_ARG <- function(tree, location) {
   local_tree <- tree
   local_tree$edge <- tree$edge[keep_edge, ]
 
-  class(local_tree) <- "localARG"
+  class(local_tree) <- "localtree"
   return(local_tree)
 }

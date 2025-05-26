@@ -1,9 +1,9 @@
-#' Input: tree (localARG), label
-#' Convert the local ARG to a phylo object that can be plotted by ape::plot.phylo
+#' Input: tree (localtree), label
+#' Convert the local tree to a phylo object that can be plotted by ape::plot.phylo
 #' Output: a phylo object
 localARG_to_phylo <- function(tree, label=FALSE) {
-  if (!inherits(tree, "localARG")) {
-    stop("Object must be of class 'localARG'")
+  if (!inherits(tree, "localtree")) {
+    stop("Object must be of class 'localtree'")
   }
 
   # find the node1 that only occurs once
@@ -42,7 +42,7 @@ localARG_to_phylo <- function(tree, label=FALSE) {
     leaf_labels <- as.character(1:tree$n)
   }
 
-  # convert the localARG object to phylo object for ape::plot.phylo
+  # convert the local tree object to phylo object for ape::plot.phylo
   tree_phylo <- list(edge=as.matrix(edge_df[, 1:2]),
                      edge.length=edge_df$length,
                      tip.label=leaf_labels,
