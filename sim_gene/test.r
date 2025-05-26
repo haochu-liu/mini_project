@@ -9,6 +9,7 @@ source("sim_gene/sim_ARG.r")
 source("sim_gene/sim_mutation.r")
 source("sim_gene/local_tree.r")
 source("sim_gene/localtree_to_phylo.r")
+source("sim_gene/ARG_igraph.r")
 
 
 set.seed(11)
@@ -17,8 +18,8 @@ tree_matrix <- as.matrix(tree$edge[, c(1, 2)])
 g <- graph_from_edgelist(tree_matrix, directed = FALSE)
 g <- delete_vertices(g, V(g)[degree(g) == 0])
 layout_coord <- ARG_igraph(tree)
-plot.igraph(g, layout=layout_coord)
 plot.igraph(g)
+plot.igraph(g, layout=layout_coord)
 tree_mutation <- sim_mutation(tree, 2)
 
 local_tree1 <- local_tree(tree_mutation, 0.1)
