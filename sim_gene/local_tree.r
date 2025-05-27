@@ -1,21 +1,14 @@
-#' Input: tree (simARG), site location for local tree
-#' Select edges for local tree graph
+#' Input: ARG (sim_ISM_ARG or sim_FSM_ARG), site location for local tree
+#' Call function local_tree_ISM or local_tree_FSM
 #' Output: local tree
-local_tree <- function(tree, location) {
-  if (!inherits(tree, "simARG")) {
-    stop("Object must be of class 'simARG'")
+local_tree_ISM <- function(ARG, location) {
+  if (!inherits(ARG, "sim_ISM_ARG") & !inherits(ARG, "sim_FSM_ARG")) {
+    stop("Object must be of class 'sim_ISM_ARG' or 'sim_FSM_ARG'")
   }
 
-  interval <- iv(location, location+.Machine$double.eps)
-  keep_edge <- c()
-  for (i in 1:nrow(tree$edge)) {
-    if (iv_count_overlaps(interval, tree$edge$material[[i]])) {
-      keep_edge <- c(keep_edge, i)
-    }
+  if (inherits(ARG, "sim_ISM_ARG")) {
+    source("sim_gene/ISM/local_tree_ISM.r")
+    local_tree <- local_tree_ISM(ARG, location)
   }
-  local_tree <- tree
-  local_tree$edge <- tree$edge[keep_edge, ]
-
-  class(local_tree) <- "localtree"
   return(local_tree)
 }

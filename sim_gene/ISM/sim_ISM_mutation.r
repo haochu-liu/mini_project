@@ -2,7 +2,7 @@
 #' Add mutation uniformly to edges
 #' Store in a dataframe: edge index, position(time), mutation
 #' Output: add mutation dataframe and a new column in node dataframe of genotype
-sim_mutation <- function(ARG, theta) {
+sim_ISM_mutation <- function(ARG, theta) {
   if (!inherits(ARG, "sim_ISM_ARG")) {
     stop("Object must be of class 'sim_ISM_ARG'")
   }
