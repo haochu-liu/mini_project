@@ -26,10 +26,9 @@ localtree_to_phylo <- function(tree, label=FALSE) {
 
   # update the node index for phylo object
   unique_node1 <- sort(unique(edge_df$node1))
+  edge_matrix <- edge_df[, 1:2]
   for (i in 1:length(unique_node1)) {
-    edge_df[, 1:2] <- replace(edge_df[, 1:2],
-                              edge_df[, 1:2] == unique_node1[i],
-                              2*tree$n - i)
+    edge_matrix[edge_df[, 1:2] == unique_node1[i]] <- 2*tree$n - i
   }
 
   if (label & !is.null(tree$node$gene_str)) {
@@ -43,7 +42,7 @@ localtree_to_phylo <- function(tree, label=FALSE) {
   }
 
   # convert the local tree object to phylo object for ape::plot.phylo
-  tree_phylo <- list(edge=as.matrix(edge_df[, 1:2]),
+  tree_phylo <- list(edge=as.matrix(edge_matrix),
                      edge.length=edge_df$length,
                      tip.label=leaf_labels,
                      Nnode=as.integer(tree$n - 1))
