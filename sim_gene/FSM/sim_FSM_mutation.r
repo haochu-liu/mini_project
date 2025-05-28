@@ -3,8 +3,8 @@
 #' Store in a dataframe: edge index, position(time), mutation
 #' Output: add mutation dataframe and a new column in node dataframe of genotype
 sim_ISM_mutation <- function(ARG, theta) {
-  if (!inherits(ARG, "sim_ISM_ARG")) {
-    stop("Object must be of class 'sim_ISM_ARG'")
+  if (!inherits(ARG, "sim_FSM_ARG")) {
+    stop("Object must be of class 'sim_FSM_ARG'")
   }
 
   l <- sum(ARG$edge$length)

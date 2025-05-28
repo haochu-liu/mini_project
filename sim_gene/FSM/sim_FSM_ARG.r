@@ -32,7 +32,7 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
 
   # Probability of starting recombination at each site
   probstart <- rep(1, L)
-  probstart[1] <- delta
+  if (bacteria) {probstart[1] <- delta}
   probstart <- probstart / sum(probstart)
   probstartcum <- cumsum(probstart)
 
@@ -58,7 +58,8 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       edge_mat[c(edge_index, edge_index+1), ] <- node_mat[leaf_node, ]
       # append root node
       node_height[node_index] <- t_sum
-      node_mat[node_index, ] <- as.integer(node_mat[leaf_node[1], ] | node_mat[leaf_node[2], ])
+      node_mat[node_index, ] <- as.integer(node_mat[leaf_node[1], ] |
+                                           node_mat[leaf_node[2], ])
       # updates for iteration
       edge_index <- edge_index + 2
       node_index <- node_index + 1
@@ -69,41 +70,64 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       # recombination event
       leaf_node <- sample(pool, size=1, replace=FALSE)
       if (bacteria) {
-        x <- runif(1, min=0, max=1)
-        y <- min(1, x + rexp(1, rate=1/delta))
-        iv1 <- iv(x, y)
-        iv2 <- iv_set_complement(iv1, lower = 0, upper = 1)
-        df_mat <- list(iv_set_intersect(iv1, node$material[[leaf_node]]),
-                       iv_set_intersect(iv2, node$material[[leaf_node]]))
+        x <- which(runif(1) < probstartcum)[1]
+        y <- min(x + rgeom(1, 1/delta), L)
+
+        if (sum(node_mat[leaf_node, x:y])==0 |
+            sum(node_mat[leaf_node, -(x:y)])==0) {
+          next
+        }
+
+        edge_mat[c(edge_index, edge_index+1), ] <- 0
+        edge_mat[edge_index, x:y] <- node_mat[leaf_node, x:y]
+        edge_mat[edge_index+1, -(x:y)] <- node_mat[leaf_node, -(x:y)]
+
+        node_mat[c(node_index, node_index+1), ] <- 0
+        node_mat[node_index, x:y] <- node_mat[leaf_node, x:y]
+        node_mat[node_index+1, -(x:y)] <- node_mat[leaf_node, -(x:y)]
       } else {
-        u <- runif(1, min=0, max=1)
-        df_mat <- list(iv_set_intersect(iv(0, u), node$material[[leaf_node]]),
-                       iv_set_intersect(iv(u, 1), node$material[[leaf_node]]))
+        x <- which(runif(1) < probstartcum)[1]
+
+        if (sum(node_mat[leaf_node, 1:(x-1)])==0 |
+            sum(node_mat[leaf_node, x:L])==0) {
+          next
+        }
+
+        edge_mat[c(edge_index, edge_index+1), ] <- 0
+        edge_mat[edge_index, 1:(x-1)] <- node_mat[leaf_node, 1:(x-1)]
+        edge_mat[edge_index+1, x:L] <- node_mat[leaf_node, x:L]
+
+        node_mat[c(node_index, node_index+1), ] <- 0
+        node_mat[node_index, 1:(x-1)] <- node_mat[leaf_node, 1:(x-1)]
+        node_mat[node_index+1, x:L] <- node_mat[leaf_node, x:L]
       }
       # append edges
-      append_edge <- tibble(
-        node1 = c(next_node, next_node + 1L),
-        node2 = rep(leaf_node, 2),
-        length = c(t_sum-node$height[leaf_node],
-                   t_sum-node$height[leaf_node]),
-        material = df_mat
-      )
-      edge <- bind_rows(edge, append_edge)
+      edge_matrix[c(edge_index, edge_index+1), 1] <- c(next_node, next_node + 1L)
+      edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
+      edge_length[c(edge_index, edge_index+1)] <- t_sum-node_height[leaf_node]
       # append root node
-      append_node <- tibble(
-        height = t_sum,
-        material = df_mat
-      )
-      node <- bind_rows(node, append_node)
+      node_height[c(node_index, node_index+1)] <- t_sum
       # updates for iteration
+      edge_index <- edge_index + 2
+      node_index <- node_index + 2
       pool <- c(setdiff(pool, leaf_node), next_node, next_node+1L)
       next_node <- next_node + 2L
       k <- k + 1
     }
     k_vector <- c(k_vector, k)
+    if (edge_index >= node_max) {
+      # add empty rows or elements if more edges than expected
+      edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=2))
+      edge_length <- c(edge_length, rep(NA, node_max))
+      edge_mat <- rbind(edge_mat, matrix(NA, nrow=node_max, ncol=L))
+      node_height <- c(node_height, rep(NA, node_max))
+      node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
+    }
   }
-  ARG = list(edge=edge, node=node, waiting_time=t, sum_time=t_sum, k=k_vector,
-             n=n, rho=rho, bacteria=bacteria, delta=delta)
-  class(ARG) <- "sim_ISM_ARG"
+  ARG = list(edge_matrix=edge_matrix, edge_length=edge_length, edge_mat=edge_mat,
+             node_height=node_height, node_mat=node_mat,
+             waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho,
+             bacteria=bacteria, delta=delta)
+  class(ARG) <- "sim_FSM_ARG"
   return(ARG)
 }
