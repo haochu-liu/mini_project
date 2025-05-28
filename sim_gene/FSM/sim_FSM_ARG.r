@@ -1,4 +1,4 @@
-#' Input: number of leaf alleles, recombination parameter,
+#' Input: number of leaf alleles, recombination parameter, number of sites
 #' bacteria recombination or not,
 #' if yes, delta is mean of the length of recombinant segment
 #' Create a full ARG with coalescent and recombination
@@ -7,9 +7,11 @@
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-sim_ISM_ARG <- function(n, rho, bacteria=FALSE, delta=NULL) {
+sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
+  } else if (L!=as.integer(L)) {
+    stop("Number of sites must be an integer")
   } else if (bacteria & is.null(delta)) {
     stop("Must provide parameter for the length of recombinant segment")
   }
