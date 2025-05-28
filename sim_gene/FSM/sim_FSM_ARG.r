@@ -1,13 +1,14 @@
 #' Input: number of leaf alleles, recombination parameter, number of sites
 #' bacteria recombination or not,
-#' if yes, delta is mean of the length of recombinant segment
+#' if yes, delta is mean of the length of recombinant segment,
+#' initial maximal node size (default = 1000)
 #' Create a full ARG with coalescent and recombination
 #' Edge dataframe: root node, leaf node, edge length, edge material interval
 #' Node dataframe: node index, node height, node material interval
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL) {
+sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -20,16 +21,23 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL) {
   k_vector <- c(k)
   t <- vector("numeric", length = 0) # vector of event times
   t_sum <- 0
-  edge <- tibble(
-    node1 = integer(), # root node
-    node2 = integer(), # leaf node
-    length = numeric(), # edge length
-    material = list() # edge material interval
-  )
-  node <- tibble(
-    height = rep(0, n), # node height to recent time
-    material = list(iv(0, 1)) # node material interval
-  )
+
+  edge_matrix <- matrix(NA, nrow=node_max, ncol=2) # leaf and root nodes
+  edge_length <- rep(NA, node_max)                 # edge length
+  edge_mat <- matrix(NA, nrow=node_max, ncol=L)    # edge material
+  node_height <- rep(NA, node_max)                 # node height to recent time
+  node_mat <- matrix(NA, nrow=node_max, ncol=L)    # node material
+  node_height[1:n] <- 0                            # initialize first n nodes
+  node_mat[1:n, ] <- 1
+
+  # Probability of starting recombination at each site
+  probstart <- rep(1, L)
+  probstart[1] <- delta
+  probstart <- probstart / sum(probstart)
+  probstartcum <- cumsum(probstart)
+
+  edge_index <- 1
+  node_index <- n + 1
   pool <- as.integer(1:n)
   next_node <- as.integer(n+1)
 
