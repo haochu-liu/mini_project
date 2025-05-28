@@ -2,8 +2,8 @@
 #' Construct a layout matrix for tree-like ARG
 #' Output: layout for igraph::plot.igraph
 ARG_igraph <- function(ARG) {
-  if (!inherits(ARG, "simARG")) {
-    stop("Object must be of class 'simARG'")
+  if (!inherits(ARG, "sim_ISM_ARG") & !inherits(ARG, "sim_FSM_ARG")) {
+    stop("Object must be of class 'sim_ISM_ARG' or 'sim_FSM_ARG'")
   }
 
   # create layout matrix and leaf nodes
@@ -35,7 +35,6 @@ ARG_igraph <- function(ARG) {
     } else {
       # if the target node is from coalescent
       base_node <- ARG$edge$node2[which(target_node == ARG$edge$node1)]
-      target_node <- which(ARG$node$index %in% target_node)
       layout_coord[target_node, 1] <- mean(layout_coord[base_node, 1])
       layout_coord[target_node, 2] <- current_level
       current_level <- current_level + 1
