@@ -22,7 +22,7 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
   t <- vector("numeric", length = 0) # vector of event times
   t_sum <- 0
 
-  edge_matrix <- matrix(NA, nrow=node_max, ncol=2) # leaf and root nodes
+  edge_matrix <- matrix(NA, nrow=node_max, ncol=2) # root and leaf nodes
   edge_length <- rep(NA, node_max)                 # edge length
   edge_mat <- matrix(NA, nrow=node_max, ncol=L)    # edge material
   node_height <- rep(NA, node_max)                 # node height to recent time
@@ -52,23 +52,16 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       # coalescent event
       leaf_node <- sample(pool, size=2, replace=FALSE)
       # append edges
-      append_edge <- tibble(
-        node1 = rep(next_node, 2),
-        node2 = leaf_node,
-        length = c(t_sum-node$height[leaf_node[1]],
-                   t_sum-node$height[leaf_node[2]]),
-        material = list(node$material[[leaf_node[1]]],
-                        node$material[[leaf_node[2]]])
-      )
-      edge <- bind_rows(edge, append_edge)
+      edge_matrix[c(edge_index, edge_index+1), 1] <- next_node
+      edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
+      edge_length[c(edge_index, edge_index+1)] <- t_sum-node_height[leaf_node]
+      edge_mat[c(edge_index, edge_index+1), ] <- node_mat[leaf_node, ]
       # append root node
-      append_node <- tibble(
-        height = t_sum,
-        material = list(iv_set_union(append_edge$material[[1]],
-                                     append_edge$material[[2]]))
-      )
-      node <- bind_rows(node, append_node)
+      node_height[node_index] <- t_sum
+      node_mat[node_index, ] <- as.integer(node_mat[leaf_node[1], ] | node_mat[leaf_node[2], ])
       # updates for iteration
+      edge_index <- edge_index + 2
+      node_index <- node_index + 1
       pool <- c(setdiff(pool, leaf_node), next_node)
       next_node <- next_node + 1L
       k <- k - 1
