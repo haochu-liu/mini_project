@@ -124,8 +124,9 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
     }
   }
-  ARG = list(edge_matrix=edge_matrix, edge_length=edge_length, edge_mat=edge_mat,
-             node_height=node_height, node_mat=node_mat,
+  ARG = list(edge_matrix=na.omit(edge_matrix), edge_length=na.omit(edge_length),
+             edge_mat=na.omit(edge_mat),
+             node_height=na.omit(node_height), node_mat=na.omit(node_mat),
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho,
              bacteria=bacteria, delta=delta)
   class(ARG) <- "sim_FSM_ARG"
