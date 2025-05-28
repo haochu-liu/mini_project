@@ -1,4 +1,4 @@
-#' Input: ARG (sim_ISM_ARG), mutation rate
+#' Input: ARG (sim_FSM_ARG), mutation rate
 #' Add mutation uniformly to edges
 #' Store in a dataframe: edge index, position(time), mutation
 #' Output: add mutation dataframe and a new column in node dataframe of genotype

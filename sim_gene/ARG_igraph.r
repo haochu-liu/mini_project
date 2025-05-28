@@ -1,4 +1,4 @@
-#' Input: ARG (simARG)
+#' Input: ARG (sim_ISM_ARG or sim_FSM_ARG)
 #' Construct a layout matrix for tree-like ARG
 #' Output: layout for igraph::plot.igraph
 ARG_igraph <- function(ARG) {

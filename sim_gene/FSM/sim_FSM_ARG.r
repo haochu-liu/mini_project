@@ -23,6 +23,7 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
   t_sum <- 0
 
   edge_matrix <- matrix(NA, nrow=node_max, ncol=2) # root and leaf nodes
+  colnames(edge_matrix) <- c("node1", "node2")
   edge_length <- rep(NA, node_max)                 # edge length
   edge_mat <- matrix(NA, nrow=node_max, ncol=L)    # edge material
   node_height <- rep(NA, node_max)                 # node height to recent time
@@ -124,7 +125,7 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
     }
   }
-  ARG = list(edge_matrix=na.omit(edge_matrix), edge_length=na.omit(edge_length),
+  ARG = list(edge=na.omit(edge_matrix), edge_length=na.omit(edge_length),
              edge_mat=na.omit(edge_mat),
              node_height=na.omit(node_height), node_mat=na.omit(node_mat),
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho,
