@@ -45,9 +45,16 @@ sim_FSM_mutation <- function(ARG, theta) {
   for (i in nrow(ARG$edge):1) {
     edge_mutation <- ARG$mutation[ARG$mutation[, 1]==i, 3]
     parent_seq <- ARG$node$gene[[ARG$edge[i, 1]]]
-    ARG$node$gene[[ARG$edge[i, 2]]] <- unique(sort(c(parent_seq,
-      edge_mutation, ARG$node$gene[[ARG$edge[i, 2]]])))
+    parent_seq <- c(parent_seq, edge_mutation)
+    for (j in 1:ARG$L) {
+      if (ARG$edge_mat[i, j] == 0) {
+        parent_seq <- parent_seq[parent_seq != j]
+      }
+    }
+    ARG$node$gene[[ARG$edge[i, 2]]] <- sort(c(parent_seq,
+                                              ARG$node$gene[[ARG$edge[i, 2]]]))
   }
+
   # convert to string
   for (i in 1:nrow(ARG$node)) {
     ARG$node$gene_str[i] <- paste0("[", paste(round(ARG$node$gene[[i]], 3),
