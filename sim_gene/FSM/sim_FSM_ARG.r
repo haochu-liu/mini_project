@@ -128,7 +128,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
              edge_mat=edge_mat[complete.cases(edge_mat), ],
              node_height=node_height[!is.na(node_height)],
              node_mat=node_mat[complete.cases(node_mat), ],
-             waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho,
+             waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
              bacteria=bacteria, delta=delta)
   class(ARG) <- "sim_FSM_ARG"
   return(ARG)
