@@ -11,12 +11,12 @@ sim_FSM_mutation <- function(ARG, theta) {
   n <- rpois(1, theta*l/2) # num of mutations | l ~ Poisson(theta*l/2)
   mutation <- matrix(NA, nrow=n, ncol=3)
   colnames(mutation) <- c("edge_index", "pos", "site")
-  new_ARG$node$gene <- list(numeric())
+  ARG$node_gene <- list(numeric())
 
   # if there is no mutation
   if (n == 0) {
-    new_ARG$node$gene_str <- "[]"
-    return(new_ARG)
+    ARG$node_gene_str <- "[]"
+    return(ARG)
   }
 
   # if there are mutations
