@@ -7,25 +7,25 @@ localtree_to_phylo <- function(tree, label=FALSE) {
   }
 
   # find the node1 that only occurs once
-  edge_df <- tree$edge[, 1:3]
-  counts_node1 <- table(edge_df$node1)
+  edge_df <- as.matrix(tree$edge[, 1:3])
+  counts_node1 <- table(edge_df[, 1])
   single_node1 <- as.numeric(names(counts_node1[counts_node1 == 1]))
 
   if (length(single_node1)) {
     # for loop to modify the edges
     for (i in single_node1) {
-      delete_edge <- which(edge_df$node1 %in% i)
-      target_edge <- which(edge_df$node2 %in% i)
-      edge_df$node2[target_edge] <- edge_df$node2[delete_edge]
-      edge_df$length[target_edge] <- edge_df$length[target_edge] +
-                                     edge_df$length[delete_edge]
+      delete_edge <- which(edge_df[, 1] %in% i)
+      target_edge <- which(edge_df[, 2] %in% i)
+      edge_df[target_edge, 2] <- edge_df[delete_edge, 2]
+      edge_df[target_edge, 3] <- edge_df[target_edge, 3] +
+                                     edge_df[delete_edge, 3]
       edge_df[delete_edge, ] <- NA
     }
     edge_df <- na.omit(edge_df)
   }
 
   # update the node index for phylo object
-  unique_node1 <- sort(unique(edge_df$node1))
+  unique_node1 <- sort(unique(edge_df[, 1]))
   edge_matrix <- edge_df[, 1:2]
   for (i in 1:length(unique_node1)) {
     edge_matrix[edge_df[, 1:2] == unique_node1[i]] <- 2*tree$n - i
@@ -43,7 +43,7 @@ localtree_to_phylo <- function(tree, label=FALSE) {
 
   # convert the local tree object to phylo object for ape::plot.phylo
   tree_phylo <- list(edge=as.matrix(edge_matrix),
-                     edge.length=edge_df$length,
+                     edge.length=edge_df[, 3],
                      tip.label=leaf_labels,
                      Nnode=as.integer(tree$n - 1))
   class(tree_phylo) <- "phylo"
