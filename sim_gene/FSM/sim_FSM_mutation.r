@@ -2,19 +2,15 @@
 #' Add mutation uniformly to edges
 #' Store in a dataframe: edge index, position(time), mutation
 #' Output: add mutation dataframe and a new column in node dataframe of genotype
-sim_ISM_mutation <- function(ARG, theta) {
+sim_FSM_mutation <- function(ARG, theta) {
   if (!inherits(ARG, "sim_FSM_ARG")) {
     stop("Object must be of class 'sim_FSM_ARG'")
   }
 
   l <- sum(ARG$edge$length)
   n <- rpois(1, theta*l/2) # num of mutations | l ~ Poisson(theta*l/2)
-  new_ARG <- ARG
-  new_ARG$mutation <- tibble(
-    edge_index = NA,
-    pos = NA,
-    site = NA
-  )
+  mutation <- matrix(NA, nrow=n, ncol=3)
+  colnames(mutation) <- c("edge_index", "pos", "site")
   new_ARG$node$gene <- list(numeric())
 
   # if there is no mutation

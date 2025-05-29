@@ -8,8 +8,7 @@ local_tree_FSM <- function(ARG, location) {
       keep_edge <- c(keep_edge, i)
     }
   }
-  ARG$edge_matrix <- ARG$edge_matrix[keep_edge, ]
-  ARG$edge_length <- ARG$edge_length[keep_edge]
+  ARG$edge <- ARG$edge[keep_edge, ]
   ARG$edge_mat <- ARG$edge_mat[keep_edge, ]
 
   class(ARG) <- "localtree"

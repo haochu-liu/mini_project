@@ -8,7 +8,7 @@
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
+sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -22,9 +22,8 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
   t <- vector("numeric", length = 0) # vector of event times
   t_sum <- 0
 
-  edge_matrix <- matrix(NA, nrow=node_max, ncol=2) # root and leaf nodes
-  colnames(edge_matrix) <- c("node1", "node2")
-  edge_length <- rep(NA, node_max)                 # edge length
+  edge_matrix <- matrix(NA, nrow=node_max, ncol=3) # root and leaf nodes, length
+  colnames(edge_matrix) <- c("node1", "node2", "length")
   edge_mat <- matrix(NA, nrow=node_max, ncol=L)    # edge material
   node_height <- rep(NA, node_max)                 # node height to recent time
   node_mat <- matrix(NA, nrow=node_max, ncol=L)    # node material
@@ -55,7 +54,7 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       # append edges
       edge_matrix[c(edge_index, edge_index+1), 1] <- next_node
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
-      edge_length[c(edge_index, edge_index+1)] <- t_sum-node_height[leaf_node]
+      edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
       edge_mat[c(edge_index, edge_index+1), ] <- node_mat[leaf_node, ]
       # append root node
       node_height[node_index] <- t_sum
@@ -105,7 +104,7 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       # append edges
       edge_matrix[c(edge_index, edge_index+1), 1] <- c(next_node, next_node + 1L)
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
-      edge_length[c(edge_index, edge_index+1)] <- t_sum-node_height[leaf_node]
+      edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
       # append root node
       node_height[c(node_index, node_index+1)] <- t_sum
       # updates for iteration
@@ -118,8 +117,7 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
     k_vector <- c(k_vector, k)
     if (edge_index >= node_max) {
       # add empty rows or elements if more edges than expected
-      edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=2))
-      edge_length <- c(edge_length, rep(NA, node_max))
+      edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=3))
       edge_mat <- rbind(edge_mat, matrix(NA, nrow=node_max, ncol=L))
       node_height <- c(node_height, rep(NA, node_max))
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
@@ -127,7 +125,6 @@ sim_ISM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
   }
 
   ARG = list(edge=edge_matrix[complete.cases(edge_matrix), ],
-             edge_length=edge_length[!is.na(edge_length)],
              edge_mat=edge_mat[complete.cases(edge_mat), ],
              node_height=node_height[!is.na(node_height)],
              node_mat=node_mat[complete.cases(node_mat), ],

@@ -9,6 +9,9 @@ local_tree <- function(ARG, location) {
   if (inherits(ARG, "sim_ISM_ARG")) {
     source("sim_gene/ISM/local_tree_ISM.r")
     local_tree <- local_tree_ISM(ARG, location)
+  } else {
+    source("sim_gene/FSM/local_tree_FSM.r")
+    local_tree <- local_tree_FSM(ARG, location)
   }
   return(local_tree)
 }
