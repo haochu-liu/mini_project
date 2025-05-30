@@ -1,0 +1,139 @@
+---
+title: "Bacteria Recombination"
+author: "Haochu"
+format: revealjs
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(igraph)
+library(tibble)
+library(dplyr)
+source("sim_gene/FSM/sim_FSM_ARG.r")
+source("sim_gene/FSM/sim_FSM_mutation.r")
+source("sim_gene/local_tree.r")
+source("sim_gene/localtree_to_phylo.r")
+source("sim_gene/ARG_igraph.r")
+```
+
+# Memory Storage
+
+## `rbind` Memory Used
+
+```{r}
+#| echo: true
+df1 <- data.frame(A = 1:3, B = letters[1:3])
+df2 <- data.frame(A = 4, B = "d")
+tracemem(df1)
+tracemem(df2)
+df1 <- rbind(df1, df2)
+untracemem(df1)
+untracemem(df2)
+```
+
+## `bind_rows` Memory Used
+
+```{r}
+#| echo: true
+df <- tibble(A = 1:3, B = letters[1:3])
+tracemem(df)
+df <- bind_rows(df, tibble(A = 4, B = "d"))
+tracemem(df)
+untracemem(df)
+```
+
+## Possible Reasons
+
+-   `rbind` and `bind_rows` are functions, not methods.
+-   Copy-on-modify behaviour of R.
+
+```{r}
+#| echo: true
+x <- c(1, 2, 3)
+y <- x
+y[[3]] <- 4
+print(x)
+```
+
+```{python}
+#| echo: true
+x = [1, 2, 3]
+y = x
+y[2] = 4
+print(x)
+```
+
+# Bacteria ARG
+
+## Full ARG
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+set.seed(11)
+ARG <- sim_FSM_ARG(5, 1, 10, bacteria = TRUE, delta = 3)
+ARG_matrix <- as.matrix(ARG$edge[, c(1, 2)])
+g <- graph_from_edgelist(ARG_matrix, directed = FALSE)
+g <- delete_vertices(g, V(g)[degree(g) == 0])
+layout_coord <- ARG_igraph(ARG)
+plot.igraph(g, layout=layout_coord)
+```
+
+## Full ARG
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+print(cbind(ARG$edge, ARG$edge_mat))
+```
+
+## Add Mutations
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+ARG_mutation <- sim_FSM_mutation(ARG, 2)
+ARG_mutation$mutation
+```
+
+## Local Trees
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+library(ape)
+local_tree1 <- local_tree(ARG_mutation, 2)
+phylo_tree1 <- localtree_to_phylo(local_tree1, label=TRUE)
+plot(phylo_tree1)
+```
+
+## Local Trees
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+local_tree2 <- local_tree(ARG_mutation, 5)
+phylo_tree2 <- localtree_to_phylo(local_tree2, label=TRUE)
+print(phylo_tree2$edge.length)
+plot(phylo_tree2)
+```
+
+## Local Trees
+
+```{r}
+#| echo: true
+#| code-fold: true
+#| code-summary: "expand for full code"
+local_tree3 <- local_tree(ARG_mutation, 8)
+phylo_tree3 <- localtree_to_phylo(local_tree3, label=TRUE)
+print(phylo_tree3$edge.length)
+plot(phylo_tree3)
+```
