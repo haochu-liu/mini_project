@@ -1,4 +1,4 @@
-#' Input: number of leaf alleles, recombination parameter, number of sites
+#' Input: number of leaf lineages, recombination parameter, number of sites
 #' bacteria recombination or not,
 #' if yes, delta is mean of the length of recombinant segment,
 #' initial maximal node size (default = 1000)
@@ -15,6 +15,8 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
     stop("Number of sites must be an integer")
   } else if (bacteria & is.null(delta)) {
     stop("Must provide parameter for the length of recombinant segment")
+  } else if (n >= node_max) {
+    stop("Maximal node size must greater than the number of leaf lineages")
   }
 
   k = n

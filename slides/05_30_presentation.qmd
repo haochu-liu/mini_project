@@ -112,6 +112,7 @@ library(ape)
 local_tree1 <- local_tree(ARG_mutation, 2)
 phylo_tree1 <- localtree_to_phylo(local_tree1, label=TRUE)
 plot(phylo_tree1)
+axisPhylo()
 ```
 
 ## Local Trees
