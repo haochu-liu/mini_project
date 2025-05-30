@@ -1,0 +1,76 @@
+---
+title: "Bacteria Recombination"
+author: "Haochu"
+format: revealjs
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(igraph)
+library(tibble)
+library(dplyr)
+source("../sim_gene/FSM/sim_FSM_ARG.r")
+source("../sim_gene/FSM/sim_FSM_mutation.r")
+source("../sim_gene/local_tree.r")
+source("../sim_gene/localtree_to_phylo.r")
+source("../sim_gene/ARG_igraph.r")
+```
+
+# `rbind` and `bind_rows` Memory Storage
+
+## `rbind` Memory Used
+
+```{r}
+#| echo: true
+df1 <- data.frame(A = 1:3, B = letters[1:3])
+df2 <- data.frame(A = 4, B = "d")
+tracemem(df1)
+tracemem(df2)
+df1 <- rbind(df1, df2)
+untracemem(df1)
+untracemem(df2)
+```
+
+## `bind_rows` Memory Used
+
+```{r}
+#| echo: true
+df <- tibble(A = 1:3, B = letters[1:3])
+tracemem(df)
+df <- bind_rows(df, tibble(A = 4, B = "d"))
+tracemem(df)
+untracemem(df)
+```
+
+## Possible Reasons
+
+-   `rbind` and `bind_rows` are functions, not methods.
+-   Copy-on-modify behaviour of R.
+
+```{r}
+#| echo: true
+x <- c(1, 2, 3)
+y <- x
+y[[3]] <- 4
+x
+```
+
+```{python}
+#| echo: true
+x = [1, 2, 3]
+y = x
+y[2] = 4
+print(x)
+```
+
+# Bacteria Recombination
+
+## Full ARG
+
+
+
+
+
