@@ -17,16 +17,8 @@ plot.igraph(g, layout=layout_coord)
 ARG_mutation <- sim_FSM_mutation(ARG, 2)
 
 local_tree1 <- local_tree(ARG_mutation, 2)
-local_tree1_matrix <- as.matrix(local_tree1$edge[, c(1, 2)])
-local_g1 <- graph_from_edgelist(local_tree1_matrix, directed = FALSE)
-local_g1 <- delete_vertices(local_g1, V(local_g1)[degree(local_g1) == 0])
-plot(local_g1)
-
-local_tree2 <- local_tree(ARG_mutation, 9)
-local_tree2_matrix <- as.matrix(local_tree2$edge[, c(1, 2)])
-local_g2 <- graph_from_edgelist(local_tree2_matrix, directed = FALSE)
-local_g2 <- delete_vertices(local_g2, V(local_g2)[degree(local_g2) == 0])
-plot(local_g2)
+local_tree2 <- local_tree(ARG_mutation, 5)
+local_tree3 <- local_tree(ARG_mutation, 8)
 
 library(ape)
 
@@ -35,3 +27,8 @@ plot(phylo_tree1)
 
 phylo_tree2 <- localtree_to_phylo(local_tree2, label=TRUE)
 plot(phylo_tree2)
+
+phylo_tree3 <- localtree_to_phylo(local_tree3, label=TRUE)
+plot(phylo_tree3)
+
+
