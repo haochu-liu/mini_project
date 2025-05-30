@@ -115,7 +115,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       k <- k + 1
     }
     k_vector <- c(k_vector, k)
-    if (edge_index >= node_max) {
+    if (max(edge_index, next_node, node_index) >= node_max - 1) {
       # add empty rows or elements if more edges than expected
       edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=3))
       edge_mat <- rbind(edge_mat, matrix(NA, nrow=node_max, ncol=L))
