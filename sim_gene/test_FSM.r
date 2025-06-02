@@ -30,5 +30,3 @@ plot(phylo_tree2)
 
 phylo_tree3 <- localtree_to_phylo(local_tree3, label=TRUE)
 plot(phylo_tree3)
-
-

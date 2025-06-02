@@ -1,14 +1,16 @@
 #' Input: number of leaf lineages, recombination parameter, number of sites
 #' bacteria recombination or not,
 #' if yes, delta is mean of the length of recombinant segment,
-#' initial maximal node size (default = 1000)
+#' initial maximal node size (default = 1000),
+#' optimise recombination edges or not
 #' Create a full ARG with coalescent and recombination
 #' Edge dataframe: root node, leaf node, edge length, edge material interval
 #' Node dataframe: node index, node height, node material interval
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
+sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
+                        optimise_recomb=FALSE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -75,8 +77,9 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
         x <- which(runif(1) < probstartcum)[1]
         y <- min(x + rgeom(1, 1/delta), L)
 
-        if (sum(node_mat[leaf_node, x:y])==0 |
-            sum(node_mat[leaf_node, -(x:y)])==0) {
+        if ((sum(node_mat[leaf_node, x:y])==0 |
+             sum(node_mat[leaf_node, -(x:y)])==0) & optimise_recomb) {
+          k <- k + 1
           next
         }
 
@@ -90,8 +93,9 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       } else {
         x <- which(runif(1) < probstartcum)[1]
 
-        if (sum(node_mat[leaf_node, 1:(x-1)])==0 |
-            sum(node_mat[leaf_node, x:L])==0) {
+        if ((sum(node_mat[leaf_node, 1:(x-1)])==0 |
+             sum(node_mat[leaf_node, x:L])==0) & optimise_recomb) {
+          k <- k + 1
           next
         }
 
@@ -104,7 +108,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
         node_mat[node_index+1, x:L] <- node_mat[leaf_node, x:L]
       }
       # append edges
-      edge_matrix[c(edge_index, edge_index+1), 1] <- c(next_node, next_node + 1L)
+      edge_matrix[c(edge_index, edge_index+1), 1] <- c(next_node, next_node+1L)
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
       edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
       # append root node
