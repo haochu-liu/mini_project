@@ -123,6 +123,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000) {
       edge_mat <- rbind(edge_mat, matrix(NA, nrow=node_max, ncol=L))
       node_height <- c(node_height, rep(NA, node_max))
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
+      node_max <- 2 * node_max
     }
   }
 
