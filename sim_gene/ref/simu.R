@@ -17,7 +17,7 @@ simu <- function(n = 100, rho = 1, delta = 100, blocks = rep(500, 7), optimise =
   probstartcum <- cumsum(probstart)
   
   # Initialize ARG data structures
-  max_nodes <- 1000
+  max_nodes <- 100000
   s <- matrix(0L, nrow = max_nodes, ncol = 6)      # s: nodes with [child1, child2, clonal parent, imported parent, start, end]
   ages <- rep(0, max_nodes)                        # Ages of nodes
   toCoal <- rep(0L, 10 * n)                        # Remaining lineages
