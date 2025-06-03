@@ -8,6 +8,9 @@ for (i in 1:1000) {
   r = simu(n=100, rho = 5, delta = 1, blocks = c(100), optimise = F)
   simu_df$ages[i+1000] <- tail(r$ages, n=1)
 }
-boxplot(ages ~ optimise, data = simu_df)
+boxplot(ages ~ optimise, data = simu_df,
+        main = "simu(n=100, rho = 5, delta = 1, blocks = c(100))",
+        xlab = "Optimise",
+        ylab = "ARG height")
 mean(simu_df$ages[1:1000])
 mean(simu_df$ages[1001:2000])
