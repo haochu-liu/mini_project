@@ -93,17 +93,48 @@ ggplot(node_df, aes(x=n, y=n_node, color=optimise)) +
 
 
 
-benchmark_with_opt <- microbenchmark(
-  sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 10,
-              node_max = 100000, optimise_recomb = TRUE),
-  times = 10
-)
+time_df <- data.frame(mean_time=rep(0, 20),
+                      n=c(100*c(1:10), 100*c(1:10)),
+                      optimise=c(c(rep("TRUE", 10), rep("FALSE", 10))))
 
-benchmark_without_opt <- microbenchmark(
-  sim_FSM_ARG(1000, 5, 100, bacteria = TRUE, delta = 10,
-              node_max = 100000, optimise_recomb = FALSE),
-  times = 10
-)
+for (i in 1:10) {
+  benchmark_with_opt <- microbenchmark(
+    sim_FSM_ARG(time_df$n[i], 5, 100, bacteria = TRUE, delta = 10,
+                node_max = 100000, optimise_recomb = TRUE),
+    times = 100,
+    setup=set.seed(10)
+  )
+  
+  benchmark_without_opt <- microbenchmark(
+    sim_FSM_ARG(time_df$n[i], 5, 100, bacteria = TRUE, delta = 10,
+                node_max = 100000, optimise_recomb = FALSE),
+    times = 100,
+    setup=set.seed(10)
+  )
 
-print(benchmark_with_opt)
-print(benchmark_without_opt)
+  time_df$mean_time[i] <- summary(benchmark_with_opt)$mean
+  time_df$mean_time[10+i] <- summary(benchmark_without_opt)$mean
+
+  print(paste("Complete", i, "iteration"))
+}
+
+ggplot(time_df, aes(x=n, y=mean_time, color=optimise)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3, shape = 21, fill = "white", stroke = 1.2) +
+  scale_color_manual(values=c("TRUE"="darkblue", "FALSE"="darkred")) +
+  labs(
+    title = "Average time of running sim_FSM_ARG()",
+    x = "# of Leaf Lineages",
+    y = "Time",
+    color = "Optimise"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 16),
+    axis.text.x = element_text(size = 12),
+    axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(size = 12),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12)
+  )
