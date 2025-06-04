@@ -57,11 +57,11 @@ node_df <- data.frame(n_node=rep(0, 200),
 
 for (i in 1:100) {
   for (j in 1:10) {
-    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 1,
+    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 20,
                      node_max = 100000, optimise_recomb = TRUE)
     node_df$n_node[i] <- node_df$n_node[i] + length(r$node_height)
 
-    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 1,
+    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 20,
                      node_max = 100000, optimise_recomb = FALSE)
     node_df$n_node[100+i] <- node_df$n_node[100+i] + length(r$node_height)
   }
