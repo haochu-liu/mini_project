@@ -1,4 +1,5 @@
 library(ggplot2)
+library(microbenchmark)
 source("sim_gene/FSM/sim_FSM_ARG.r")
 source("sim_gene/ref/simu.R")
 source("sim_gene/sim_birth_death.r")
@@ -57,11 +58,11 @@ node_df <- data.frame(n_node=rep(0, 200),
 
 for (i in 1:100) {
   for (j in 1:10) {
-    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 20,
+    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 10,
                      node_max = 100000, optimise_recomb = TRUE)
     node_df$n_node[i] <- node_df$n_node[i] + length(r$node_height)
 
-    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 20,
+    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 10,
                      node_max = 100000, optimise_recomb = FALSE)
     node_df$n_node[100+i] <- node_df$n_node[100+i] + length(r$node_height)
   }
@@ -89,3 +90,20 @@ ggplot(node_df, aes(x=n, y=n_node, color=optimise)) +
     legend.title = element_text(size = 16),
     legend.text = element_text(size = 12)
   )
+
+
+
+benchmark_with_opt <- microbenchmark(
+  sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 10,
+              node_max = 100000, optimise_recomb = TRUE),
+  times = 10
+)
+
+benchmark_without_opt <- microbenchmark(
+  sim_FSM_ARG(1000, 5, 100, bacteria = TRUE, delta = 10,
+              node_max = 100000, optimise_recomb = FALSE),
+  times = 10
+)
+
+print(benchmark_with_opt)
+print(benchmark_without_opt)
