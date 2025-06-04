@@ -48,3 +48,44 @@ ggplot(time_df, aes(x=func, y=time, fill=optimise)) +
     legend.title = element_text(size = 16),
     legend.text = element_text(size = 12)
   )
+
+
+
+node_df <- data.frame(n_node=rep(0, 200),
+                      n=c(10*c(1:100), 10*c(1:100)),
+                      optimise=c(c(rep("TRUE", 100), rep("FALSE", 100))))
+
+for (i in 1:100) {
+  for (j in 1:10) {
+    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 1,
+                     node_max = 100000, optimise_recomb = TRUE)
+    node_df$n_node[i] <- node_df$n_node[i] + length(r$node_height)
+
+    r <- sim_FSM_ARG(node_df$n[i], 5, 100, bacteria = TRUE, delta = 1,
+                     node_max = 100000, optimise_recomb = FALSE)
+    node_df$n_node[100+i] <- node_df$n_node[100+i] + length(r$node_height)
+  }
+  if (i%%10 == 0) {print(paste("Complete", i, "iterations"))}
+}
+node_df$n_node <- node_df$n_node/10
+
+ggplot(node_df, aes(x=n, y=n_node, color=optimise)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3, shape = 21, fill = "white", stroke = 1.2) +
+  scale_color_manual(values=c("TRUE"="darkblue", "FALSE"="darkred")) +
+  labs(
+    title = "Number of Nodes from sim_FSM_ARG()",
+    x = "# of Leaf Lineages",
+    y = "# of Nodes",
+    color = "Optimise"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 16),
+    axis.text.x = element_text(size = 12),
+    axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(size = 12),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12)
+  )
