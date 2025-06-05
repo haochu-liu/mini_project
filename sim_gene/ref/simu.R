@@ -69,8 +69,8 @@ simu <- function(n = 100, rho = 1, delta = 100, blocks = rep(500, 7), optimise =
       
       # Skip if recombination doesn't affect ancestral material
       if (optimise &&
-          all(toCoalAncMat[beg:nd, i] == 0) ||
-          all(toCoalAncMat[-(beg:nd), i] == 0)) next
+          (all(toCoalAncMat[beg:nd, i] == 0) ||
+           all(toCoalAncMat[-(beg:nd), i] == 0))) next
       
       nodes <- nodes + 2
       s[nodes - 1, 1] <- toCoal[i]

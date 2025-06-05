@@ -1,0 +1,17 @@
+library(ggplot2)
+source("sim_gene/FSM/sim_FSM_ARG.r")
+source("sim_gene/local_tree.r")
+source("sim_gene/FSM/sim_FSM_mutation.r")
+source("sim_gene/localtree_height.r")
+source("sim_gene/localtree_traj.r")
+
+
+set.seed(11)
+ARG <- sim_FSM_ARG(5, 1, 10, bacteria = TRUE, delta = 3)
+ARG_mutation <- sim_FSM_mutation(ARG, 2)
+local_tree1 <- local_tree(ARG_mutation, 2)
+local_tree2 <- local_tree(ARG_mutation, 5)
+local_tree3 <- local_tree(ARG_mutation, 8)
+tree_height(local_tree1)
+tree_height(local_tree2)
+tree_height(local_tree3)
