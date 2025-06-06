@@ -27,7 +27,7 @@ sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, o
 
   edge_matrix <- matrix(NA, nrow=node_max, ncol=3) # root and leaf nodes, length
   colnames(edge_matrix) <- c("node1", "node2", "length")
-  edge_mat <- matrix(NA, nrow=node_max, ncol=L)    # edge material
+  edge_mat_index <- rep(NA, node_max)              # edge material index
   node_height <- rep(NA, node_max)                 # node height to recent time
   node_mat <- matrix(NA, nrow=node_max, ncol=L)    # node material
   node_height[1:n] <- 0                            # initialize first n nodes
@@ -60,7 +60,7 @@ sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, o
       edge_matrix[c(edge_index, edge_index+1), 1] <- next_node
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
       edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
-      edge_mat[c(edge_index, edge_index+1), ] <- node_mat[leaf_node, ]
+      edge_mat_index[c(edge_index, edge_index+1)] <- leaf_node
 
       # append root node
       node_height[node_index] <- t_sum
@@ -86,9 +86,7 @@ sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, o
           next
         }
 
-        edge_mat[c(edge_index, edge_index+1), ] <- 0
-        edge_mat[edge_index, x:y] <- node_mat[leaf_node, x:y]
-        edge_mat[edge_index+1, -(x:y)] <- node_mat[leaf_node, -(x:y)]
+        edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
         node_mat[c(node_index, node_index+1), ] <- 0
         node_mat[node_index, x:y] <- node_mat[leaf_node, x:y]
@@ -101,9 +99,7 @@ sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, o
           next
         }
 
-        edge_mat[c(edge_index, edge_index+1), ] <- 0
-        edge_mat[edge_index, 1:(x-1)] <- node_mat[leaf_node, 1:(x-1)]
-        edge_mat[edge_index+1, x:L] <- node_mat[leaf_node, x:L]
+        edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
         node_mat[c(node_index, node_index+1), ] <- 0
         node_mat[node_index, 1:(x-1)] <- node_mat[leaf_node, 1:(x-1)]
@@ -128,7 +124,7 @@ sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, o
     if (max(edge_index, next_node, node_index) >= node_max - 1) {
       # add empty rows or elements if more edges than expected
       edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=3))
-      edge_mat <- rbind(edge_mat, matrix(NA, nrow=node_max, ncol=L))
+      edge_mat_index <- c(edge_mat_index, rep(NA, node_max))
       node_height <- c(node_height, rep(NA, node_max))
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
       node_max <- 2 * node_max
@@ -136,7 +132,7 @@ sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, o
   }
 
   ARG = list(edge=edge_matrix[1:(edge_index-1), ],
-             edge_mat=edge_mat[1:(edge_index-1), ],
+             edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
              node_height=node_height[1:(node_index-1)],
              node_mat=node_mat[1:(node_index-1), ],
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,

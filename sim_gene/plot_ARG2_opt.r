@@ -1,4 +1,5 @@
 library(ggplot2)
+library(microbenchmark)
 library(patchwork)
 library(sdprisk)
 source("sim_gene/FSM/sim_FSM_ARG.r")
@@ -265,6 +266,13 @@ benchmark_without_opt <- microbenchmark(
   setup=set.seed(10)
 )
 
+benchmark_simu <- microbenchmark(
+  simu(n=100, rho = 5, delta = 10, blocks = c(100), optimise = T),
+  times = 100,
+  setup=set.seed(10)
+)
+
 summary(benchmark_with_opt2)
 summary(benchmark_with_opt1)
 summary(benchmark_without_opt)
+summary(benchmark_simu)
