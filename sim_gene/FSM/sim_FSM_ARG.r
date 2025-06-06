@@ -9,7 +9,7 @@
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, optimise_recomb=FALSE) {
+sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, optimise_recomb=FALSE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {

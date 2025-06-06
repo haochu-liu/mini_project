@@ -2,7 +2,7 @@ library(igraph)
 source("sim_gene/FSM/sim_FSM_ARG.r")
 source("sim_gene/FSM/sim_FSM_mutation.r")
 source("sim_gene/local_tree.r")
-source("sim_gene/localtree_to_phylo.r")
+source("sim_gene/localtree_tools/localtree_to_phylo.r")
 source("sim_gene/ARG_igraph.r")
 
 
