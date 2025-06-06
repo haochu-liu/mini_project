@@ -241,7 +241,7 @@ print(combined_hist)
 Set `optimise_recomb = TRUE` gives
 ```{r}
 #| echo: true
-height_t_df <- data.frame(s1=rep(NA, 1000),
+height_t_df2 <- data.frame(s1=rep(NA, 1000),
                           s50=rep(NA, 1000),
                           s80=rep(NA, 1000))
 set.seed(11)
@@ -251,21 +251,13 @@ for (i in 1:1000) {
   tree1 <- local_tree(ARG, 1)
   tree50 <- local_tree(ARG, 50)
   tree80 <- local_tree(ARG, 80)
-  height_t_df$s1[i] <- tree_height(tree1)
-  height_t_df$s50[i] <- tree_height(tree50)
-  height_t_df$s80[i] <- tree_height(tree80)
+  height_t_df2$s1[i] <- tree_height(tree1)
+  height_t_df2$s50[i] <- tree_height(tree50)
+  height_t_df2$s80[i] <- tree_height(tree80)
   if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
 }
 
-n <- 100
-height_rate <- n:2 * (n-1):1 / 2
-# x <- seq(0, 10, length.out = 500)
-# height_density <- dhypoexp(x, rate=height_rate)
-height_density <- function(x) {
-  dhypoexp(x, rate=height_rate)
-}
-
-hist1 <- ggplot(height_t_df, aes(x = s1)) +
+hist1 <- ggplot(height_t_df2, aes(x = s1)) +
   geom_histogram(aes(y = after_stat(density)),
                  binwidth = 0.5,
                  fill = "lightgreen",
@@ -279,7 +271,7 @@ hist1 <- ggplot(height_t_df, aes(x = s1)) +
        x = "Height",
        y = "Density") +
   theme_minimal()
-hist2 <- ggplot(height_t_df, aes(x = s50)) +
+hist2 <- ggplot(height_t_df2, aes(x = s50)) +
   geom_histogram(aes(y = after_stat(density)),
                  binwidth = 0.5,
                  fill = "lightgreen",
@@ -293,7 +285,7 @@ hist2 <- ggplot(height_t_df, aes(x = s50)) +
        x = "Height",
        y = "Density") +
   theme_minimal()
-hist3 <- ggplot(height_t_df, aes(x = s80)) +
+hist3 <- ggplot(height_t_df2, aes(x = s80)) +
   geom_histogram(aes(y = after_stat(density)),
                  binwidth = 0.5,
                  fill = "lightgreen",
@@ -311,74 +303,6 @@ combined_hist <- hist1 + hist2 + hist3
 combined_hist <- combined_hist +
   plot_annotation(
     title = "sim_FSM_ARG2(100, 5, 100, bacteria = TRUE, delta = 1, node_max = 100000, optimise_recomb = TRUE)")
-print(combined_hist)
-```
-
-Set `optimise_recomb = FALSE` gives
-```{r}
-#| echo: true
-height_f_df <- data.frame(s1=rep(NA, 1000),
-                          s50=rep(NA, 1000),
-                          s80=rep(NA, 1000))
-set.seed(11)
-for (i in 1:1000) {
-  ARG <- sim_FSM_ARG2(100, 5, 100, bacteria = TRUE, delta = 1,
-                     node_max = 100000, optimise_recomb = FALSE)
-  tree1 <- local_tree(ARG, 1)
-  tree50 <- local_tree(ARG, 50)
-  tree80 <- local_tree(ARG, 80)
-  height_f_df$s1[i] <- tree_height(tree1)
-  height_f_df$s50[i] <- tree_height(tree50)
-  height_f_df$s80[i] <- tree_height(tree80)
-  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
-}
-
-hist1 <- ggplot(height_f_df, aes(x = s1)) +
-  geom_histogram(aes(y = after_stat(density)),
-                 binwidth = 0.5,
-                 fill = "lightgreen",
-                 color = "black",
-                 alpha = 0.7) +
-  stat_function(fun = height_density, # Use your custom function here
-                color = "darkblue",
-                linewidth = 1.2,
-                linetype = "solid") +
-  labs(title = "Locat tree at site 1",
-       x = "Height",
-       y = "Density") +
-  theme_minimal()
-hist2 <- ggplot(height_f_df, aes(x = s50)) +
-  geom_histogram(aes(y = after_stat(density)),
-                 binwidth = 0.5,
-                 fill = "lightgreen",
-                 color = "black",
-                 alpha = 0.7) +
-  stat_function(fun = height_density, # Use your custom function here
-                color = "darkblue",
-                linewidth = 1.2,
-                linetype = "solid") +
-  labs(title = "Locat tree at site 50",
-       x = "Height",
-       y = "Density") +
-  theme_minimal()
-hist3 <- ggplot(height_f_df, aes(x = s80)) +
-  geom_histogram(aes(y = after_stat(density)),
-                 binwidth = 0.5,
-                 fill = "lightgreen",
-                 color = "black",
-                 alpha = 0.7) +
-  stat_function(fun = height_density, # Use your custom function here
-                color = "darkblue",
-                linewidth = 1.2,
-                linetype = "solid") +
-  labs(title = "Locat tree at site 80",
-       x = "Height",
-       y = "Density") +
-  theme_minimal()
-combined_hist <- hist1 + hist2 + hist3
-combined_hist <- combined_hist +
-  plot_annotation(
-    title = "sim_FSM_ARG2(100, 5, 100, bacteria = TRUE, delta = 1, node_max = 100000, optimise_recomb = FALSE)")
 print(combined_hist)
 ```
 
@@ -406,7 +330,7 @@ for (i in 1:100) {
 node_df$n_node <- node_df$n_node/10
 
 ggplot(node_df, aes(x=n, y=n_node, color=optimise)) +
-  geom_line(size = 1.2) +
+  geom_line(linewidth = 1.2) +
   geom_point(size = 3, shape = 21, fill = "white", stroke = 1.2) +
   scale_color_manual(values=c("TRUE"="darkblue", "FALSE"="darkred")) +
   labs(
@@ -442,14 +366,14 @@ benchmark_with_opt2 <- microbenchmark(
 benchmark_with_opt1 <- microbenchmark(
   sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 10,
               node_max = 100000, optimise_recomb = TRUE),
-  times = 10,
+  times = 100,
   setup=set.seed(10)
 )
 
 benchmark_without_opt <- microbenchmark(
   sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 10,
               node_max = 100000, optimise_recomb = FALSE),
-  times = 10,
+  times = 100,
   setup=set.seed(10)
 )
 
