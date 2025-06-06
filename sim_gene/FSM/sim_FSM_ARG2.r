@@ -135,10 +135,10 @@ sim_FSM_ARG2 <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, o
     }
   }
 
-  ARG = list(edge=edge_matrix[complete.cases(edge_matrix), ],
-             edge_mat=edge_mat[complete.cases(edge_mat), ],
-             node_height=node_height[!is.na(node_height)],
-             node_mat=node_mat[complete.cases(node_mat), ],
+  ARG = list(edge=edge_matrix[1:(edge_index-1), ],
+             edge_mat=edge_mat[1:(edge_index-1), ],
+             node_height=node_height[1:(node_index-1)],
+             node_mat=node_mat[1:(node_index-1), ],
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
              bacteria=bacteria, delta=delta)
   class(ARG) <- "sim_FSM_ARG"
