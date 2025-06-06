@@ -1,3 +1,6 @@
+#' Input: local tree
+#' Compute the height of local tree
+#' Output: height
 tree_height <- function(tree) {
   if (!inherits(tree, "localtree")) {
     stop("Object must be of class 'localtree'")

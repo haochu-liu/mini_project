@@ -1,5 +1,7 @@
+#' Input: child node, local tree
+#' Find the trajectory from a given node to the root node
+#' Output: vector of edge indices for trajectory
 tree_trajectory2 <- function(child, tree) {
-  #' input: child node, tree with tree$edge not changing order.
   if (!inherits(tree, "localtree")) {
     stop("Object must be of class 'localtree'")
   }
