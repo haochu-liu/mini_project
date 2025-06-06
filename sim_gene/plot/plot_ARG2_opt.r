@@ -3,55 +3,55 @@ library(microbenchmark)
 library(patchwork)
 library(sdprisk)
 source("sim_gene/FSM/sim_FSM_ARG.r")
-source("sim_gene/FSM/sim_FSM_ARG2.r")
 source("sim_gene/ref/simu.R")
 source("sim_gene/sim_birth_death.r")
 source("sim_gene/local_tree.r")
-source("sim_gene/localtree_height.r")
-source("sim_gene/localtree_traj.r")
+source("sim_gene/localtree_tools/localtree_height.r")
+source("sim_gene/localtree_tools/localtree_traj.r")
 
 
-time_df <- data.frame(time=rep(NA, 700),
-                      optimise=c(rep("Simulated Hitting Time", 100),
-                                 c(rep("TRUE", 100), rep("FALSE", 100)),
-                                 c(rep("TRUE", 100), rep("FALSE", 100)),
-                                 c(rep("TRUE", 100), rep("FALSE", 100))),
-                      func=c(rep("Birth-death Process", 100),
-                             rep("sim_FSM_ARG", 200),
-                             rep("sim_FSM_ARG2", 200),
-                             rep("simu", 200)))
+time_df <- data.frame(time=rep(NA, 7000),
+                      optimise=c(rep("Simulated Hitting Time", 1000),
+                                 c(rep("TRUE", 1000), rep("FALSE", 1000)),
+                                 c(rep("TRUE", 1000), rep("FALSE", 1000)),
+                                 c(rep("TRUE", 1000), rep("FALSE", 1000))),
+                      func=c(rep("Birth-death Process", 1000),
+                             rep("sim_FSM_ARG", 2000),
+                             rep("sim_FSM_ARG2", 2000),
+                             rep("simu", 2000)))
 
-for (i in 1:100) {
+set.seed(10)
+for (i in 1:1000) {
   t <- sim_birth_death(100, 5)
   time_df$time[i] <- t
-
+  
   r <- sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 1,
                    node_max = 100000, optimise_recomb = TRUE)
-  time_df$time[100+i] <- r$sum_time
-
+  time_df$time[1000+i] <- r$sum_time
+  
   r <- sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 1,
                    node_max = 100000, optimise_recomb = FALSE)
-  time_df$time[200+i] <- r$sum_time
-
+  time_df$time[2000+i] <- r$sum_time
+  
   r <- sim_FSM_ARG2(100, 5, 100, bacteria = TRUE, delta = 1,
-                   node_max = 100000, optimise_recomb = TRUE)
-  time_df$time[300+i] <- r$sum_time
-
+                    node_max = 100000, optimise_recomb = TRUE)
+  time_df$time[3000+i] <- r$sum_time
+  
   r <- sim_FSM_ARG2(100, 5, 100, bacteria = TRUE, delta = 1,
-                   node_max = 100000, optimise_recomb = FALSE)
-  time_df$time[400+i] <- r$sum_time
-
+                    node_max = 100000, optimise_recomb = FALSE)
+  time_df$time[4000+i] <- r$sum_time
+  
   r = simu(n=100, rho = 5, delta = 1, blocks = c(100), optimise = T)
-  time_df$time[500+i] <- tail(r$ages, n=1)
-
+  time_df$time[5000+i] <- tail(r$ages, n=1)
+  
   r = simu(n=100, rho = 5, delta = 1, blocks = c(100), optimise = F)
-  time_df$time[600+i] <- tail(r$ages, n=1)
-
-  if (i%%10 == 0) {print(paste("Complete", i, "iterations"))}
+  time_df$time[6000+i] <- tail(r$ages, n=1)
+  
+  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
 }
 
 ggplot(time_df, aes(x=func, y=time, fill=optimise)) +
-  geom_boxplot() +
+  geom_violin() +
   labs(title = "# of leaf lineages = 100, rho = 5",
        x = "Functions",
        y = "ARG height") +

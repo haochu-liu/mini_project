@@ -14,12 +14,11 @@ library(microbenchmark)
 library(patchwork)
 library(sdprisk)
 source("sim_gene/FSM/sim_FSM_ARG.r")
-source("sim_gene/FSM/sim_FSM_ARG2.r")
 source("sim_gene/ref/simu.R")
 source("sim_gene/sim_birth_death.r")
 source("sim_gene/local_tree.r")
-source("sim_gene/localtree_height.r")
-source("sim_gene/localtree_traj.r")
+source("sim_gene/localtree_tools/localtree_height.r")
+source("sim_gene/localtree_tools/localtree_traj.r")
 ```
 
 ## Compare Simulation Functions
