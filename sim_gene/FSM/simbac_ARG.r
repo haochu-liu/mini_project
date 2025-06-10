@@ -1,3 +1,6 @@
+source("sim_gene/effective_R.r")
+
+
 #' Input: number of leaf lineages, recombination parameter, number of sites,
 #' delta is mean of the length of recombinant segment,
 #' initial maximal node size (default = 1000),
@@ -42,11 +45,12 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
 
   while (k > 1) {
     # sample a new event time
-    event_time <- rexp(1, rate=k*(k-1+rho)/2)
+    rho_eff <- sum(node_eff_R[pool])
+    event_time <- rexp(1, rate=k*(k-1+rho_eff)/2)
     t <- c(t, event_time)
     t_sum <- t_sum + event_time
     # sample whether the event is a coalescent
-    p_coale <- rbinom(n=1, size=1, prob=(k-1)/(k-1+rho))
+    p_coale <- rbinom(n=1, size=1, prob=(k-1)/(k-1+rho_eff))
     if (p_coale == 1) {
       # coalescent event
       leaf_node <- sample(pool, size=2, replace=FALSE)
@@ -61,6 +65,11 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       node_height[node_index] <- t_sum
       node_mat[node_index, ] <- as.integer(node_mat[leaf_node[1], ] |
                                            node_mat[leaf_node[2], ])
+      
+      # update effective R
+      list_eff_R <- effective_R(node_mat[node_index, ], delta, L, rho)
+      node_eff_R[node_index] <- list_eff_R$R_eff
+      node_probstart[node_index, ] <- list_eff_R$probstartsum
       
       # updates for iteration
       edge_index <- edge_index + 2
