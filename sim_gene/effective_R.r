@@ -15,10 +15,10 @@ effective_R <- function(mat, delta, L, rho) {
                 probstartcum=cumsum(rep(1/L, L))))
   } else {
     R <- rho / L
-    v_s <- c(1:L)[mat & (mat != c(0, mat[1:(L-1)]))] # compute s1, ..., sb
-    v_e <- c(1:L)[mat & (mat != c(mat[2:L], 0))]     # compute e1, ..., eb
-    v_e <- c(0, v_e)                                 # add e0
-    b <- length(v_s)                                 # number of blocks
+    v_s <- which(mat & (mat != c(0, mat[1:(L-1)]))) # compute s1, ..., sb
+    v_e <- which(mat & (mat != c(mat[2:L], 0)))     # compute e1, ..., eb
+    v_e <- c(0, v_e)                                # add e0
+    b <- length(v_s)                                # number of blocks
 
     # compute R_eff
     R_gap <- R * delta * (1 - (1 - 1/delta)^(v_s - v_e[1:b]))

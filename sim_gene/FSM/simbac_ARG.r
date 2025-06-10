@@ -79,9 +79,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       k <- k - 1
     } else {
       # recombination event
-      leaf_node <- sample(pool, size=1, replace=FALSE)
+      leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool])
 
-      x <- which(runif(1) < probstartcum)[1]
+      x <- which(runif(1) < node_probstart[leaf_node, ])[1]
       y <- min(x + rgeom(1, 1/delta), L)
 
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
