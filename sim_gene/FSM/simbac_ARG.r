@@ -69,7 +69,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       # update effective R
       list_eff_R <- effective_R(node_mat[node_index, ], delta, L, rho)
       node_eff_R[node_index] <- list_eff_R$R_eff
-      node_probstart[node_index, ] <- list_eff_R$probstartsum
+      node_probstart[node_index, ] <- list_eff_R$probstartcum
       
       # updates for iteration
       edge_index <- edge_index + 2
@@ -106,10 +106,10 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       # update effective R
       list_eff_R <- effective_R(node_mat[node_index, ], delta, L, rho)
       node_eff_R[node_index] <- list_eff_R$R_eff
-      node_probstart[node_index, ] <- list_eff_R$probstartsum
+      node_probstart[node_index, ] <- list_eff_R$probstartcum
       list_eff_R <- effective_R(node_mat[node_index+1, ], delta, L, rho)
       node_eff_R[node_index+1] <- list_eff_R$R_eff
-      node_probstart[node_index+1, ] <- list_eff_R$probstartsum
+      node_probstart[node_index+1, ] <- list_eff_R$probstartcum
 
       # updates for iteration
       edge_index <- edge_index + 2
@@ -137,7 +137,8 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
              node_height=node_height[1:(node_index-1)],
              node_mat=node_mat[1:(node_index-1), ],
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
-             delta=delta, node_eff_R=node_eff_R, node_probstart=node_probstart)
+             delta=delta, node_eff_R=node_eff_R[1:(node_index-1)],
+             node_probstart=node_probstart[1:(node_index-1), ])
   } else {
     ARG = list(edge=edge_matrix[1:(edge_index-1), ],
              edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
