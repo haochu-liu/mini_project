@@ -35,7 +35,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
   node_height[1:n] <- 0                               # initialize nodes height
   node_mat[1:n, ] <- 1                                # initialize nodes material
   node_eff_R[1:n] <- rho * (1-(1-1/delta)^(L-1))      # initialize effective R
-  node_probstart[1:n, ] <- cumsum(rep(1/L, L))        # initialize node_probstart
+  node_probstart[1:n, ] <- matrix(cumsum(rep(1/L, L)), nrow=n, ncol=L, byrow=TRUE)
 
   # Initialize variables and vector
   edge_index <- 1
@@ -84,7 +84,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       x <- which(runif(1) < node_probstart[leaf_node, ])[1]
       repeat {
         y <- min(x + rgeom(1, 1/delta), L)
-
+        print(c(x, y))
         if (!(sum(node_mat[leaf_node, x:y])==0 |
               sum(node_mat[leaf_node, -(x:y)])==0)) {break}
       }

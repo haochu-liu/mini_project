@@ -6,8 +6,8 @@ source("sim_gene/localtree_tools/localtree_to_phylo.r")
 source("sim_gene/ARG_igraph.r")
 
 
-set.seed(11)
-ARG <- simbac_ARG(5, 1, 10, 3, output_eff_R = TRUE)
+set.seed(100)
+ARG <- simbac_ARG(5, 1, 10, 5, output_eff_R = TRUE)
 ARG_matrix <- as.matrix(ARG$edge[, c(1, 2)])
 g <- graph_from_edgelist(ARG_matrix, directed = FALSE)
 g <- delete_vertices(g, V(g)[degree(g) == 0])
