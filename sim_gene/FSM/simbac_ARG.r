@@ -82,8 +82,13 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool])
 
       x <- which(runif(1) < node_probstart[leaf_node, ])[1]
-      y <- min(x + rgeom(1, 1/delta), L)
+      repeat {
+        y <- min(x + rgeom(1, 1/delta), L)
 
+        if (!(sum(node_mat[leaf_node, x:y])==0 |
+              sum(node_mat[leaf_node, -(x:y)])==0)) {break}
+      }
+      
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
       node_mat[c(node_index, node_index+1), ] <- 0
@@ -97,6 +102,14 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
 
       # append root node
       node_height[c(node_index, node_index+1)] <- t_sum
+
+      # update effective R
+      list_eff_R <- effective_R(node_mat[node_index, ], delta, L, rho)
+      node_eff_R[node_index] <- list_eff_R$R_eff
+      node_probstart[node_index, ] <- list_eff_R$probstartsum
+      list_eff_R <- effective_R(node_mat[node_index+1, ], delta, L, rho)
+      node_eff_R[node_index+1] <- list_eff_R$R_eff
+      node_probstart[node_index+1, ] <- list_eff_R$probstartsum
 
       # updates for iteration
       edge_index <- edge_index + 2
@@ -112,16 +125,27 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       edge_mat_index <- c(edge_mat_index, rep(NA, node_max))
       node_height <- c(node_height, rep(NA, node_max))
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
+      node_eff_R <- c(node_eff_R, rep(NA, node_max))
+      node_probstart <- rbind(node_probstart, matrix(NA, nrow=node_max, ncol=L))
       node_max <- 2 * node_max
     }
   }
 
-  ARG = list(edge=edge_matrix[1:(edge_index-1), ],
+  if (output_eff_R) {
+    ARG = list(edge=edge_matrix[1:(edge_index-1), ],
+             edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
+             node_height=node_height[1:(node_index-1)],
+             node_mat=node_mat[1:(node_index-1), ],
+             waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
+             delta=delta, node_eff_R=node_eff_R, node_probstart=node_probstart)
+  } else {
+    ARG = list(edge=edge_matrix[1:(edge_index-1), ],
              edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
              node_height=node_height[1:(node_index-1)],
              node_mat=node_mat[1:(node_index-1), ],
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
              delta=delta)
+  }
   class(ARG) <- "sim_FSM_ARG"
   return(ARG)
 }
