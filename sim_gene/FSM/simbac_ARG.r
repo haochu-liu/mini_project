@@ -9,7 +9,7 @@
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, optimise_recomb=FALSE) {
+simbac_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, optimise_recomb=FALSE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -34,7 +34,9 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, op
   node_mat[1:n, ] <- 1
 
   # Probability of starting recombination at each site
-  probstart <- rep(1/L, L)
+  probstart <- rep(1, L)
+  if (bacteria) {probstart[1] <- delta}
+  probstart <- probstart / sum(probstart)
   probstartcum <- cumsum(probstart)
 
   # Initialize variables and vector
