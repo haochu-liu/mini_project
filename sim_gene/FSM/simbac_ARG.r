@@ -46,11 +46,11 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
   while (k > 1) {
     # sample a new event time
     rho_eff <- sum(node_eff_R[pool])
-    event_time <- rexp(1, rate=k*(k-1+rho_eff)/2)
+    event_time <- rexp(1, rate=(k*(k-1)+rho_eff)/2)
     t <- c(t, event_time)
     t_sum <- t_sum + event_time
     # sample whether the event is a coalescent
-    p_coale <- rbinom(n=1, size=1, prob=(k-1)/(k-1+rho_eff))
+    p_coale <- rbinom(n=1, size=1, prob=k*(k-1)/(k*(k-1)+rho_eff))
     if (p_coale == 1) {
       # coalescent event
       leaf_node <- sample(pool, size=2, replace=FALSE)
@@ -82,12 +82,14 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool])
 
       x <- which(runif(1) < node_probstart[leaf_node, ])[1]
-      repeat {
-        y <- min(x + rgeom(1, 1/delta), L)
-        print(c(x, y))
-        if (!(sum(node_mat[leaf_node, x:y])==0 |
-              sum(node_mat[leaf_node, -(x:y)])==0)) {break}
-      }
+      y <- min(x + rgeom(1, 1/delta), L)
+      print(c(x, y))
+      #repeat {
+      #  y <- min(x + rgeom(1, 1/delta), L)
+      #  print(c(x, y))
+      #  if (!(sum(node_mat[leaf_node, x:y])==0 |
+      #        sum(node_mat[leaf_node, -(x:y)])==0)) {break}
+      #}
       
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
