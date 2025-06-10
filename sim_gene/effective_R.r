@@ -29,6 +29,7 @@ effective_R <- function(mat, delta, L, rho) {
     # generate probstart
     probstart <- rep(R * (1 - (1 - 1/delta)^(L - 1)), L)
     probstart[v_s] <- R_gap * (1 - (1 - 1/delta)^(L - (v_s - v_e[1:b])))
+    probstart <- probstart / sum(probstart)
 
     return(list(R_eff = R_eff,
                 probstartcum=cumsum(probstart)))
