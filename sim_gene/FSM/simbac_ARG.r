@@ -34,9 +34,7 @@ simbac_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, opt
   node_mat[1:n, ] <- 1
 
   # Probability of starting recombination at each site
-  probstart <- rep(1, L)
-  if (bacteria) {probstart[1] <- delta}
-  probstart <- probstart / sum(probstart)
+  probstart <- rep(1/L, L)
   probstartcum <- cumsum(probstart)
 
   # Initialize variables and vector
