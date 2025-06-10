@@ -1,6 +1,5 @@
-#' Input: number of leaf lineages, recombination parameter, number of sites
-#' bacteria recombination or not,
-#' if yes, delta is mean of the length of recombinant segment,
+#' Input: number of leaf lineages, recombination parameter, number of sites,
+#' delta is mean of the length of recombinant segment,
 #' initial maximal node size (default = 1000),
 #' optimise recombination edges or not
 #' Create a full ARG with coalescent and recombination
@@ -9,13 +8,11 @@
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-simbac_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, optimise_recomb=FALSE) {
+simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
     stop("Number of sites must be an integer")
-  } else if (bacteria & is.null(delta)) {
-    stop("Must provide parameter for the length of recombinant segment")
   } else if (n >= node_max) {
     stop("Maximal node size must greater than the number of leaf lineages")
   }
@@ -25,17 +22,17 @@ simbac_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, opt
   t <- vector("numeric", length = 0) # vector of event times
   t_sum <- 0
 
-  edge_matrix <- matrix(NA, nrow=node_max, ncol=3) # root and leaf nodes, length
+  edge_matrix <- matrix(NA, nrow=node_max, ncol=3)    # root and leaf nodes, length
   colnames(edge_matrix) <- c("node1", "node2", "length")
-  edge_mat_index <- rep(NA, node_max)              # edge material index
-  node_height <- rep(NA, node_max)                 # node height to recent time
-  node_mat <- matrix(NA, nrow=node_max, ncol=L)    # node material
-  node_height[1:n] <- 0                            # initialize first n nodes
-  node_mat[1:n, ] <- 1
-
-  # Probability of starting recombination at each site
-  probstart <- rep(1/L, L)
-  probstartcum <- cumsum(probstart)
+  edge_mat_index <- rep(NA, node_max)                 # edge material index
+  node_height <- rep(NA, node_max)                    # node height to recent time
+  node_mat <- matrix(NA, nrow=node_max, ncol=L)       # node material
+  node_eff_R <- rep(NA, node_max)                     # node effective R
+  node_probstart <- matrix(NA, nrow=node_max, ncol=L) # node recomb starting prob
+  node_height[1:n] <- 0                               # initialize nodes height
+  node_mat[1:n, ] <- 1                                # initialize nodes material
+  node_eff_R[1:n] <- rho * (1-(1-1/delta)^(L-1))      # initialize effective R
+  node_probstart[1:n, ] <- cumsum(rep(1/L, L))        # initialize node_probstart
 
   # Initialize variables and vector
   edge_index <- 1
@@ -75,34 +72,15 @@ simbac_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, opt
       # recombination event
       leaf_node <- sample(pool, size=1, replace=FALSE)
 
-      if (bacteria) {
-        x <- which(runif(1) < probstartcum)[1]
-        y <- min(x + rgeom(1, 1/delta), L)
+      x <- which(runif(1) < probstartcum)[1]
+      y <- min(x + rgeom(1, 1/delta), L)
 
-        if ((sum(node_mat[leaf_node, x:y])==0 |
-             sum(node_mat[leaf_node, -(x:y)])==0) & optimise_recomb) {
-          next
-        }
+      edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
-        edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
-
-        node_mat[c(node_index, node_index+1), ] <- 0
-        node_mat[node_index, x:y] <- node_mat[leaf_node, x:y]
-        node_mat[node_index+1, -(x:y)] <- node_mat[leaf_node, -(x:y)]
-      } else {
-        x <- which(runif(1) < probstartcum)[1]
-
-        if ((sum(node_mat[leaf_node, 1:(x-1)])==0 |
-             sum(node_mat[leaf_node, x:L])==0) & optimise_recomb) {
-          next
-        }
-
-        edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
-
-        node_mat[c(node_index, node_index+1), ] <- 0
-        node_mat[node_index, 1:(x-1)] <- node_mat[leaf_node, 1:(x-1)]
-        node_mat[node_index+1, x:L] <- node_mat[leaf_node, x:L]
-      }
+      node_mat[c(node_index, node_index+1), ] <- 0
+      node_mat[node_index, x:y] <- node_mat[leaf_node, x:y]
+      node_mat[node_index+1, -(x:y)] <- node_mat[leaf_node, -(x:y)]
+      
       # append edges
       edge_matrix[c(edge_index, edge_index+1), 1] <- c(next_node, next_node+1L)
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
@@ -134,7 +112,7 @@ simbac_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, opt
              node_height=node_height[1:(node_index-1)],
              node_mat=node_mat[1:(node_index-1), ],
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
-             bacteria=bacteria, delta=delta)
+             delta=delta)
   class(ARG) <- "sim_FSM_ARG"
   return(ARG)
 }
