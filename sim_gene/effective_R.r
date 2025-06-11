@@ -17,7 +17,7 @@ effective_R <- function(mat, delta, L, rho) {
     R <- rho / L
     v_s <- which(mat & (mat != c(0, mat[1:(L-1)]))) # compute s1, ..., sb
     v_e <- which(mat & (mat != c(mat[2:L], 0)))     # compute e1, ..., eb
-    v_e <- c(0, v_e)                                # add e0
+    v_e <- c(v_e[length(v_e)] - L, v_e)             # add e0
     b <- length(v_s)                                # number of blocks
 
     # compute R_eff
@@ -30,8 +30,8 @@ effective_R <- function(mat, delta, L, rho) {
     probstart <- rep(0, L)
     probstart[as.logical(mat)] <- R * (1 - (1 - 1/delta)^(L - 1))
     probstart[v_s] <- R_gap * (1 - (1 - 1/delta)^(L - (v_s - v_e[1:b])))
-    probstart <- probstart / sum(probstart)
-
+    if (sum(probstart) != 0) {probstart <- probstart / sum(probstart)}
+    
     return(list(R_eff = R_eff,
                 probstartcum=cumsum(probstart)))
   }
