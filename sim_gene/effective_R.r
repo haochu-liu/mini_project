@@ -27,7 +27,8 @@ effective_R <- function(mat, delta, L, rho) {
       R * (1 - 1/delta)^(L - 1) * (sum(mat) - b)
 
     # generate probstart
-    probstart <- rep(R * (1 - (1 - 1/delta)^(L - 1)), L)
+    probstart <- rep(0, L)
+    probstart[as.logical(mat)] <- R * (1 - (1 - 1/delta)^(L - 1))
     probstart[v_s] <- R_gap * (1 - (1 - 1/delta)^(L - (v_s - v_e[1:b])))
     probstart <- probstart / sum(probstart)
 
