@@ -1,0 +1,32 @@
+#' Input: node ancestral material, mean of the length of recombinant segment,
+#' number of sites, recombination rate per genome
+#' Compute the effective recombination rate,
+#' and provide the probability of recombination initiating sites
+#' Output: Effective recombination rate, cum sum of initiating sites probability
+effective_R <- function(mat, delta, L, rho) {
+  if (L < 2) {
+    return(list(R_eff = 0,
+                probstartcum=cumsum(rep(0, L))))
+  }
+
+  R <- rho / L
+  v_s <- which(mat & (mat != c(0, mat[1:(L-1)]))) # compute s1, ..., sb
+  v_e <- which(mat & (mat != c(mat[2:L], 0)))     # compute e1, ..., eb
+  v_e <- c(v_e[length(v_e)] - L, v_e)             # add e0
+  b <- length(v_s)                                # number of blocks
+
+  # compute R_eff
+  R_gap <- R * delta * (1 - (1 - 1/delta)^(v_s - v_e[1:b]))
+  R_eff <- sum(R_gap) + R * (sum(mat) - b)
+  R_eff <- R_eff - sum(R_gap * (1 - 1/delta)^(L - (v_s - v_e[1:b]))) -
+    R * (1 - 1/delta)^(L - 1) * (sum(mat) - b)
+
+  # generate probstart
+  probstart <- rep(0, L)
+  probstart[as.logical(mat)] <- R * (1 - (1 - 1/delta)^(L - 1))
+  probstart[v_s] <- R_gap * (1 - (1 - 1/delta)^(L - (v_s - v_e[1:b])))
+  if (sum(probstart) != 0) {probstart <- probstart / sum(probstart)}
+  
+  return(list(R_eff = R_eff,
+              probstart=probstart))
+}

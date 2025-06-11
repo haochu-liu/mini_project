@@ -11,6 +11,8 @@ source("sim_gene/sim_birth_death.r")
 source("sim_gene/local_tree.r")
 source("sim_gene/ARG_igraph.r")
 
+source("sim_gene/FSM/simbac_ARG_n.r")
+
 
 set.seed(100)
 ARG <- simbac_ARG(5, 1, 10, 5, output_eff_R = TRUE)
