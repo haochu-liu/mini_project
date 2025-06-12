@@ -1,0 +1,211 @@
+---
+title: "SimBac Function"
+author: "Haochu"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(ggplot2)
+library(microbenchmark)
+library(patchwork)
+library(sdprisk)
+source("sim_gene/FSM/sim_FSM_ARG.r")
+source("sim_gene/FSM/simbac_ARG.r")
+source("sim_gene/FSM/sim_FSM_mutation.r")
+source("sim_gene/ref/simu.R")
+source("sim_gene/sim_birth_death.r")
+source("sim_gene/local_tree.r")
+source("sim_gene/ARG_igraph.r")
+```
+
+## Simulation Using `SimBac` Algorithm
+
+### ARG Height
+
+Compare heights of simulated ARGs from `simbac_ARG`, `sim_FSM_ARG(optimise=T)`, `sim_FSM_ARG(optimise=F)`. The red box represents the hitting time from a birth-death process.
+
+```{r}
+#| echo: true
+time_df <- data.frame(time=rep(NA, 4000),
+                      func=c(rep("Birth-death Process", 1000),
+                             rep("sim_FSM_ARG(optimise=T)", 1000),
+                             rep("sim_FSM_ARG(optimise=F)", 1000),
+                             rep("simbac", 1000)))
+
+set.seed(10)
+for (i in 1:1000) {
+  t <- sim_birth_death(100, 5)
+  time_df$time[i] <- t
+  
+  r <- sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 5,
+                   node_max = 100000, optimise_recomb = TRUE)
+  time_df$time[1000+i] <- r$sum_time
+  
+  r <- sim_FSM_ARG(100, 5, 100, bacteria = TRUE, delta = 5,
+                   node_max = 100000, optimise_recomb = FALSE)
+  time_df$time[2000+i] <- r$sum_time
+  
+  r <- simbac_ARG(100, 5, 100, delta = 5, node_max = 100000, output_eff_R = TRUE)
+  time_df$time[3000+i] <- r$sum_time
+  
+  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
+}
+```
+
+```{r}
+#| echo: true
+ggplot(time_df, aes(x=func, y=time, fill=func)) +
+  geom_violin(width=1, alpha=0.5) +
+  geom_boxplot(width=0.1, color="black", alpha=0.2) +
+  labs(title = "# of leaf lineages = 100, rho = 5",
+       x = "Functions",
+       y = "ARG height") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 16),
+    axis.text.x = element_text(size = 12),
+    axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(size = 12),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12)
+  )
+```
+
+### `simbac_ARG` Local Tree
+
+Simulate full ARG by `simbac_ARG` and examine its height of local trees with the hypo-exponential distribution.
+
+```{r}
+#| echo: true
+height_t_df <- data.frame(s1=rep(NA, 1000),
+                          s50=rep(NA, 1000),
+                          s80=rep(NA, 1000))
+set.seed(100)
+for (i in 1:1000) {
+  ARG <- simbac_ARG(100, 5, 100, delta = 5, node_max = 100000, output_eff_R = TRUE)
+  tree1 <- local_tree(ARG, 1)
+  tree50 <- local_tree(ARG, 50)
+  tree80 <- local_tree(ARG, 80)
+  height_t_df$s1[i] <- tree1$sum_time
+  height_t_df$s50[i] <- tree50$sum_time
+  height_t_df$s80[i] <- tree80$sum_time
+  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
+}
+```
+
+```{r}
+#| echo: true
+n <- 100
+height_rate <- n:2 * (n-1):1 / 2
+height_density <- function(x) {
+  dhypoexp(x, rate=height_rate)
+}
+
+hist1 <- ggplot(height_t_df, aes(x = s1)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 fill = "lightgreen",
+                 color = "black",
+                 alpha = 0.7) +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 1",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+hist2 <- ggplot(height_t_df, aes(x = s50)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 fill = "lightgreen",
+                 color = "black",
+                 alpha = 0.7) +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 50",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+hist3 <- ggplot(height_t_df, aes(x = s80)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 fill = "lightgreen",
+                 color = "black",
+                 alpha = 0.7) +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 80",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+combined_hist <- hist1 + hist2 + hist3
+combined_hist <- combined_hist +
+  plot_annotation(
+    title = "simbac_ARG(100, 5, 100, delta = 5, node_max = 100000)")
+print(combined_hist)
+```
+
+### Number of Nodes in ARGs
+
+Set the number of leaf lineages to be 20, 100, 500. And set $\delta = 1, 10, 20$. Increase $\rho$ from 1 to 10. For every point, I simulated 10 times and take the mean value.
+
+```{r}
+#| echo: true
+n_values <- c(20, 100, 500)
+rho_values <- 1:10
+delta_values <- c(1, 10, 20)
+func_vec <- c("sim_FSM_ARG(optimise=T)", "sim_FSM_ARG(optimise=F)", "simbac_ARG")
+node_df <- expand.grid(
+  n_node = NA,
+  n = n_values,
+  rho = rho_values,
+  delta = delta_values,
+  func = func_vec
+)
+
+for (i in 1:nrow(node_df)) {
+  n <- node_df$n[i]
+  rho <- node_df$rho[i]
+  delta <- node_df$delta[i]
+  func_str <- node_df$func[i]
+  node_vec <- rep(NA, 10)
+  if (func_str == "sim_FSM_ARG(optimise=T)") {
+    for (i in 1:10) {
+      r <- sim_FSM_ARG(n, rho, 100, bacteria = TRUE, delta = delta,
+                       node_max = 100000, optimise_recomb = TRUE)
+      node_vec[i] <- length(r$node_height)
+    }
+  } else if (func_str == "sim_FSM_ARG(optimise=F)") {
+    for (i in 1:10) {
+      r <- sim_FSM_ARG(n, rho, 100, bacteria = TRUE, delta = delta,
+                       node_max = 100000, optimise_recomb = FALSE)
+      node_vec[i] <- length(r$node_height)
+    }
+  } else if (func_str == "simbac_ARG") {
+    for (i in 1:10) {
+      r <- simbac_ARG(n, rho, 100, delta, node_max = 100000)
+      node_vec[i] <- length(r$node_height)
+    }
+  }
+  node_df$n_node[i] <- mean(node_vec)
+  if (i%%10 == 0) {print(paste("Complete", i, "iterations"))}
+}
+```
+
+
+
+
+
+
+
+
