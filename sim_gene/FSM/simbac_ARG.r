@@ -30,11 +30,13 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
   edge_mat_index <- rep(NA, node_max)                 # edge material index
   node_height <- rep(NA, node_max)                    # node height to recent time
   node_mat <- matrix(NA, nrow=node_max, ncol=L)       # node material
-  node_eff_R <- rep(NA, node_max)                     # node effective R
+  node_eff_R <- matrix(NA, nrow=node_max, ncol=2)     # node effective R
+  colnames(node_eff_R) <- c("effective_R", "clonal")
   node_probstart <- matrix(NA, nrow=node_max, ncol=L) # node recomb starting prob
   node_height[1:n] <- 0                               # initialize nodes height
   node_mat[1:n, ] <- 1                                # initialize nodes material
-  node_eff_R[1:n] <- rho * (1-(1-1/delta)^(L-1))      # initialize effective R
+  node_eff_R[1:n, 1] <- rho * (1-(1-1/delta)^(L-1))   # initialize effective R
+  node_eff_R[1:n, 2] <- TRUE
   node_probstart[1:n, ] <- matrix(cumsum(rep(1/L, L)), nrow=n, ncol=L, byrow=TRUE)
 
   # Initialize variables and vector
@@ -45,7 +47,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
 
   while (k > 1) {
     # sample a new event time
-    rho_eff <- sum(node_eff_R[pool])
+    rho_eff <- sum(node_eff_R[pool, 1])
     event_time <- rexp(1, rate=(k*(k-1)+rho_eff)/2)
     t <- c(t, event_time)
     t_sum <- t_sum + event_time
@@ -67,8 +69,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
                                            node_mat[leaf_node[2], ])
       
       # update effective R
-      list_eff_R <- effective_R(node_mat[node_index, ], delta, L, rho)
-      node_eff_R[node_index] <- list_eff_R$R_eff
+      node_eff_R[node_index, 2] <- any(node_eff_R[leaf_node, 2])
+      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho, node_eff_R[node_index, 2])
+      node_eff_R[node_index, 1] <- list_eff_R$R_eff
       node_probstart[node_index, ] <- list_eff_R$probstartcum
       
       # updates for iteration
@@ -79,16 +82,14 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       k <- k - 1
     } else {
       # recombination event
-      leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool])
+      leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool, 1])
 
       repeat {
         x <- which(runif(1) < node_probstart[leaf_node, ])[1]
         y <- min(x + rgeom(1, 1/delta), L)
-        # print(c(x, y))
         if (!(sum(node_mat[leaf_node, x:y])==0 |
               sum(node_mat[leaf_node, -(x:y)])==0)) {break}
       }
-      # print("------")
       
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
@@ -105,11 +106,13 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       node_height[c(node_index, node_index+1)] <- t_sum
 
       # update effective R
-      list_eff_R <- effective_R(node_mat[node_index, ], delta, L, rho)
-      node_eff_R[node_index] <- list_eff_R$R_eff
+      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho, FALSE)
+      node_eff_R[node_index, 1] <- list_eff_R$R_eff
+      node_eff_R[node_index, 2] <- FALSE
       node_probstart[node_index, ] <- list_eff_R$probstartcum
-      list_eff_R <- effective_R(node_mat[node_index+1, ], delta, L, rho)
-      node_eff_R[node_index+1] <- list_eff_R$R_eff
+      list_eff_R <- effective_R(node_mat[node_index+1, ], delta, rho, TRUE)
+      node_eff_R[node_index+1, 1] <- list_eff_R$R_eff
+      node_eff_R[node_index+1, 2] <- TRUE
       node_probstart[node_index+1, ] <- list_eff_R$probstartcum
 
       # updates for iteration
@@ -126,7 +129,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       edge_mat_index <- c(edge_mat_index, rep(NA, node_max))
       node_height <- c(node_height, rep(NA, node_max))
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
-      node_eff_R <- c(node_eff_R, rep(NA, node_max))
+      node_eff_R <- rbind(node_eff_R, matrix(NA, nrow=node_max, ncol=2))
       node_probstart <- rbind(node_probstart, matrix(NA, nrow=node_max, ncol=L))
       node_max <- 2 * node_max
     }
@@ -138,7 +141,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
              node_height=node_height[1:(node_index-1)],
              node_mat=node_mat[1:(node_index-1), ],
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
-             delta=delta, node_eff_R=node_eff_R[1:(node_index-1)],
+             delta=delta, node_eff_R=node_eff_R[1:(node_index-1), ],
              node_probstart=node_probstart[1:(node_index-1), ])
   } else {
     ARG = list(edge=edge_matrix[1:(edge_index-1), ],
