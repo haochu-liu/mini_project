@@ -37,5 +37,5 @@ effective_R <- function(mat, delta, rho, clonal) {
   if (sum(probstart) != 0) {probstart <- probstart / sum(probstart)}
   
   return(list(R_eff = R_eff,
-              probstart=probstart))
+              probstart=cumsum(probstart)))
 }

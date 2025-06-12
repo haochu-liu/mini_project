@@ -1,9 +1,10 @@
 #' Input: node ancestral material, mean of the length of recombinant segment,
-#' number of sites, recombination rate per genome
+#' recombination rate per genome, if the lineage is clonal
 #' Compute the effective recombination rate,
 #' and provide the probability of recombination initiating sites
 #' Output: Effective recombination rate, cum sum of initiating sites probability
-effective_R <- function(mat, delta, L, rho) {
+effective_R <- function(mat, delta, rho, clonal) {
+  L <- length(mat)
   if (L < 2) {
     return(list(R_eff = 0,
                 probstartcum=cumsum(rep(0, L))))
@@ -18,13 +19,21 @@ effective_R <- function(mat, delta, L, rho) {
   # compute R_eff
   R_gap <- R * delta * (1 - (1 - 1/delta)^(v_s - v_e[1:b]))
   R_eff <- sum(R_gap) + R * (sum(mat) - b)
-  R_eff <- R_eff - sum(R_gap * (1 - 1/delta)^(L - (v_s - v_e[1:b]))) -
-    R * (1 - 1/delta)^(L - 1) * (sum(mat) - b)
-
+  if (!clonal) {
+    R_eff <- R_eff - sum(R_gap * (1 - 1/delta)^(L - (v_s - v_e[1:b]))) -
+      R * (1 - 1/delta)^(L - 1) * (sum(mat) - b)
+  }
+  
   # generate probstart
   probstart <- rep(0, L)
-  probstart[as.logical(mat)] <- R * (1 - (1 - 1/delta)^(L - 1))
-  probstart[v_s] <- R_gap * (1 - (1 - 1/delta)^(L - (v_s - v_e[1:b])))
+  if (clonal) {
+    probstart[as.logical(mat)] <- R
+    probstart[v_s] <- R_gap
+  } else {
+    probstart[as.logical(mat)] <- R * (1 - (1 - 1/delta)^(L - 1))
+    probstart[v_s] <- R_gap * (1 - (1 - 1/delta)^(L - (v_s - v_e[1:b])))
+  }
+  
   if (sum(probstart) != 0) {probstart <- probstart / sum(probstart)}
   
   return(list(R_eff = R_eff,
