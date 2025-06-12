@@ -157,12 +157,12 @@ print(combined_hist)
 
 ### Number of Nodes in ARGs
 
-Set the number of leaf lineages to be 20, 100, 500. And set $\delta = 1, 10, 20$. Increase $\rho$ from 1 to 10. For every point, I simulated 10 times and take the mean value.
+Set the number of leaf lineages to be 20, 100, 500. And set $\delta = 1, 10, 20$. Increase $\rho$ from 2 to 10. For every point, I simulated 10 times and take the mean value.
 
 ```{r}
 #| echo: true
 n_values <- c(20, 100, 500)
-rho_values <- 1:10
+rho_values <- seq(2, 10, by = 2)
 delta_values <- c(1, 10, 20)
 func_vec <- c("sim_FSM_ARG(optimise=T)", "sim_FSM_ARG(optimise=F)", "simbac_ARG")
 node_df <- expand.grid(
@@ -173,6 +173,7 @@ node_df <- expand.grid(
   func = func_vec
 )
 
+set.seed(100)
 for (i in 1:nrow(node_df)) {
   n <- node_df$n[i]
   rho <- node_df$rho[i]
@@ -180,24 +181,24 @@ for (i in 1:nrow(node_df)) {
   func_str <- node_df$func[i]
   node_vec <- rep(NA, 10)
   if (func_str == "sim_FSM_ARG(optimise=T)") {
-    for (i in 1:10) {
+    for (j in 1:10) {
       r <- sim_FSM_ARG(n, rho, 100, bacteria = TRUE, delta = delta,
                        node_max = 100000, optimise_recomb = TRUE)
-      node_vec[i] <- length(r$node_height)
+      node_vec[j] <- length(r$node_height)
     }
   } else if (func_str == "sim_FSM_ARG(optimise=F)") {
-    for (i in 1:10) {
+    for (j in 1:10) {
       r <- sim_FSM_ARG(n, rho, 100, bacteria = TRUE, delta = delta,
                        node_max = 100000, optimise_recomb = FALSE)
-      node_vec[i] <- length(r$node_height)
+      node_vec[j] <- length(r$node_height)
     }
   } else if (func_str == "simbac_ARG") {
-    for (i in 1:10) {
+    for (j in 1:10) {
       r <- simbac_ARG(n, rho, 100, delta, node_max = 100000)
-      node_vec[i] <- length(r$node_height)
+      node_vec[j] <- length(r$node_height)
     }
   }
-  node_df$n_node[i] <- mean(node_vec)
+  node_df$n_node[i] <- median(node_vec)
   if (i%%10 == 0) {print(paste("Complete", i, "iterations"))}
 }
 ```
