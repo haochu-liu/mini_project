@@ -85,14 +85,18 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       # recombination event
       leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool, 1])
 
+      #print(effective_R(node_mat[leaf_node, ], delta, rho,
+      #      node_eff_R[leaf_node, 2]))
+      #print(node_mat[leaf_node, ])
+      #print(node_eff_R[leaf_node, 2])
       repeat {
         x <- which(runif(1) < node_probstart[leaf_node, ])[1]
         y <- min(x + rgeom(1, 1/delta), L)
-        print(c(x, y))
+        #print(c(x, y))
         if (!(sum(node_mat[leaf_node, x:y])==0 |
               sum(node_mat[leaf_node, -(x:y)])==0)) {break}
       }
-      print("-----")
+      #print("-----")
       
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
@@ -109,13 +113,16 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       node_height[c(node_index, node_index+1)] <- t_sum
 
       # update effective R
-      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho, FALSE)
-      node_eff_R[node_index, 1] <- list_eff_R$R_eff
       node_eff_R[node_index, 2] <- FALSE
+      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
+                                node_eff_R[node_index, 2])
+      node_eff_R[node_index, 1] <- list_eff_R$R_eff
       node_probstart[node_index, ] <- list_eff_R$probstartcum
-      list_eff_R <- effective_R(node_mat[node_index+1, ], delta, rho, TRUE)
+
+      node_eff_R[node_index+1, 2] <- node_eff_R[leaf_node, 2]
+      list_eff_R <- effective_R(node_mat[node_index+1, ], delta, rho,
+                                node_eff_R[node_index+1, 2])
       node_eff_R[node_index+1, 1] <- list_eff_R$R_eff
-      node_eff_R[node_index+1, 2] <- TRUE
       node_probstart[node_index+1, ] <- list_eff_R$probstartcum
 
       # updates for iteration
