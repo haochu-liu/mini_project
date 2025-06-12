@@ -69,8 +69,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
                                            node_mat[leaf_node[2], ])
       
       # update effective R
-      node_eff_R[node_index, 2] <- any(node_eff_R[leaf_node, 2])
-      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho, node_eff_R[node_index, 2])
+      node_eff_R[node_index, 2] <- any(as.logical(node_eff_R[leaf_node, 2]))
+      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
+                                node_eff_R[node_index, 2])
       node_eff_R[node_index, 1] <- list_eff_R$R_eff
       node_probstart[node_index, ] <- list_eff_R$probstartcum
       
