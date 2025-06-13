@@ -157,11 +157,11 @@ print(combined_hist)
 
 ### Number of Nodes in ARGs
 
-Set the number of leaf lineages to be 20, 100, 500. And set $\delta = 1, 10, 20$. Increase $\rho$ from 2 to 10. For every point, I simulated 10 times and take the mean value.
+Set the number of leaf lineages to be 20, 100, 200. And set $\delta = 1, 10, 20$. Increase $\rho$ from 2 to 10. For every point, I simulated 10 times and take the median value.
 
 ```{r}
 #| echo: true
-n_values <- c(20, 100, 500)
+n_values <- c(20, 100, 200)
 rho_values <- seq(2, 10, by = 2)
 delta_values <- c(1, 10, 20)
 func_vec <- c("sim_FSM_ARG(optimise=T)", "sim_FSM_ARG(optimise=F)", "simbac_ARG")
@@ -199,14 +199,72 @@ for (i in 1:nrow(node_df)) {
     }
   }
   node_df$n_node[i] <- median(node_vec)
-  if (i%%10 == 0) {print(paste("Complete", i, "iterations"))}
+  print(paste("Complete", i, "iterations"))
 }
 ```
 
+```{r}
+#| echo: true
+node_plot <- node_df
+node_plot$n <- paste0("n = ", node_plot$n)
+node_plot$delta <- paste0("delta = ", node_plot$delta)
 
+ggplot(node_plot, aes(x=rho, y=n_node, color=func)) +
+  geom_line(aes(group = interaction(n, delta, func)), linewidth = 1.2, alpha=0.7) +
+  geom_point(size = 2, shape = 21, fill = "white", stroke = 1.2, alpha=0.7) +
+  scale_color_manual(values=c("sim_FSM_ARG(optimise=T)"="darkblue",
+                              "sim_FSM_ARG(optimise=F)"="darkred",
+                              "simbac_ARG"="darkgreen")) +
+  facet_grid(n ~ delta) +
+  labs(
+    title = "Number of Nodes by Recombination Rates",
+    x = "rho",
+    y = "# of Nodes",
+    color = "function"
+  ) +
+  scale_y_continuous(trans='log10') +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 16),
+    axis.text.x = element_text(size = 12),
+    axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(size = 12),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12),
+    legend.position = "bottom"
+  )
+```
 
+### Running Time
 
+Compare running time from `sim_FSM_ARG(optimise=T)`, `sim_FSM_ARG(optimise=F)`, and `simbac_ARG` by setting the number of leaf lineages = 100, number of sites = 100, $\delta = 10$, and $\rho = 10$.
 
+```{r}
+#| echo: true
+benchmark_with_opt <- microbenchmark(
+  sim_FSM_ARG(100, 10, 100, bacteria = TRUE, delta = 10,
+              node_max = 100000, optimise_recomb = TRUE),
+  times = 10,
+  setup=set.seed(10)
+)
 
+benchmark_without_opt <- microbenchmark(
+  sim_FSM_ARG(100, 10, 100, bacteria = TRUE, delta = 10,
+              node_max = 100000, optimise_recomb = FALSE),
+  times = 10,
+  setup=set.seed(10)
+)
+
+benchmark_simbac <- microbenchmark(
+  simbac_ARG(100, 10, 100, delta = 10, node_max = 100000),
+  times = 10,
+  setup=set.seed(10)
+)
+
+benchmark_with_opt
+benchmark_without_opt
+benchmark_simbac
+```
 
 

@@ -93,8 +93,14 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
         x <- which(runif(1) < node_probstart[leaf_node, ])[1]
         y <- min(x + rgeom(1, 1/delta), L)
         #print(c(x, y))
-        if (!(sum(node_mat[leaf_node, x:y])==0 |
-              sum(node_mat[leaf_node, -(x:y)])==0)) {break}
+        if ((!(sum(node_mat[leaf_node, x:y])==0 |
+               sum(node_mat[leaf_node, -(x:y)])==0)) &
+            (!node_eff_R[leaf_node, 2])) {
+          break
+        } else if ((!(sum(node_mat[leaf_node, x:y])==0)) &
+                   node_eff_R[leaf_node, 2]) {
+          break
+        }
       }
       #print("-----")
       
