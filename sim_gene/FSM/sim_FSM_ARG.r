@@ -19,6 +19,8 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
     stop("Must provide parameter for the length of recombinant segment")
   } else if (n >= node_max) {
     stop("Maximal node size must greater than the number of leaf lineages")
+  } else if (clonal & (!bacteria)) {
+    stop("Cannot consider clonal lineages for human gene")
   }
 
   k = n
