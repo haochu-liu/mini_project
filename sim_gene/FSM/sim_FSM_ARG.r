@@ -2,14 +2,15 @@
 #' bacteria recombination or not,
 #' if yes, delta is mean of the length of recombinant segment,
 #' initial maximal node size (default = 1000),
-#' optimise recombination edges or not
+#' optimise recombination edges or not, distinguish clonal lineages or not
 #' Create a full ARG with coalescent and recombination
 #' Edge dataframe: root node, leaf node, edge length, edge material interval
 #' Node dataframe: node index, node height, node material interval
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, optimise_recomb=FALSE) {
+sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
+                        optimise_recomb=FALSE, clonal=FALSE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -30,8 +31,14 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, op
   edge_mat_index <- rep(NA, node_max)              # edge material index
   node_height <- rep(NA, node_max)                 # node height to recent time
   node_mat <- matrix(NA, nrow=node_max, ncol=L)    # node material
+  if (clonal) {                                    # node clonal
+    node_clonal <- rep(NA, node_max)
+  } else {
+    node_clonal <- NULL
+  }
   node_height[1:n] <- 0                            # initialize first n nodes
   node_mat[1:n, ] <- 1
+  if (clonal) {node_clonal[1:n] <- TRUE}
 
   # Probability of starting recombination at each site
   probstart <- rep(1/L, L)
@@ -65,6 +72,11 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, op
       node_mat[node_index, ] <- as.integer(node_mat[leaf_node[1], ] |
                                            node_mat[leaf_node[2], ])
       
+      # update clonal lineage
+      if (clonal) {
+        node_clonal[node_index] <- any(as.logical(node_clonal[leaf_node]))
+      }
+      
       # updates for iteration
       edge_index <- edge_index + 2
       node_index <- node_index + 1
@@ -79,9 +91,18 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, op
         x <- which(runif(1) < probstartcum)[1]
         y <- min(x + rgeom(1, 1/delta), L)
 
-        if ((sum(node_mat[leaf_node, x:y])==0 |
-             sum(node_mat[leaf_node, -(x:y)])==0) & optimise_recomb) {
-          next
+        if (clonal & optimise_recomb) {
+          if ((sum(node_mat[leaf_node, x:y])==0 |
+               sum(node_mat[leaf_node, -(x:y)])==0) &
+              (!node_clonal[leaf_node])) {                   # not clonal 
+            next
+          } else if (sum(node_mat[leaf_node, x:y])==0 &
+                     node_clonal[leaf_node]) {               # clonal
+            next
+          }
+        } else if (optimise_recomb) {
+          if (sum(node_mat[leaf_node, x:y])==0 |
+              sum(node_mat[leaf_node, -(x:y)])==0) {next}
         }
 
         edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
@@ -111,6 +132,12 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, op
       # append root node
       node_height[c(node_index, node_index+1)] <- t_sum
 
+      # update clonal lineage
+      if (clonal) {
+        node_clonal[node_index] <- FALSE
+        node_clonal[node_index+1] <- node_clonal[leaf_node]
+      }
+
       # updates for iteration
       edge_index <- edge_index + 2
       node_index <- node_index + 2
@@ -125,6 +152,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, op
       edge_mat_index <- c(edge_mat_index, rep(NA, node_max))
       node_height <- c(node_height, rep(NA, node_max))
       node_mat <- rbind(node_mat, matrix(NA, nrow=node_max, ncol=L))
+      if (clonal) {node_clonal <- c(node_clonal, rep(NA, node_max))}
       node_max <- 2 * node_max
     }
   }
@@ -133,6 +161,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000, op
              edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
              node_height=node_height[1:(node_index-1)],
              node_mat=node_mat[1:(node_index-1), ],
+             node_clonal=node_clonal,
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
              bacteria=bacteria, delta=delta)
   class(ARG) <- "sim_FSM_ARG"
