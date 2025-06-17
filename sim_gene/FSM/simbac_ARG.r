@@ -85,18 +85,33 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       # recombination event
       leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool, 1])
 
-      repeat {
-        x <- which(runif(1) < node_probstart[leaf_node, ])[1]
-        y <- min(x + rgeom(1, 1/delta), L)
-        if ((!(sum(node_mat[leaf_node, x:y])==0 |
-               sum(node_mat[leaf_node, -(x:y)])==0)) &
-            (!node_eff_R[leaf_node, 2])) {
-          break
-        } else if ((!(sum(node_mat[leaf_node, x:y])==0)) &
-                   node_eff_R[leaf_node, 2]) {
-          break
-        }
-      }
+      # sample recombination segment
+      x <- which(runif(1) < node_probstart[leaf_node, ])[1]
+      # pmf for conditional geom distribution
+      v_s <- which(node_mat[leaf_node, ] &
+        (node_mat[leaf_node, ] != c(0, node_mat[leaf_node, ][1:(L-1)])))
+      site_index <- which(v_s %in% x)
+      if (length(site_index)) {
+        v_e <- which(node_mat[leaf_node, ] &
+          (node_mat[leaf_node, ] != c(node_mat[leaf_node, ][2:L], 0)))
+        v_e <- c(v_e[length(v_e)] - L, v_e)
+        k <- min(L - (v_s[site_index] - v_e[site_index]), L - x + 1)
+      } else {k <- L - x + 1}
+      r_pmf <- (1 - 1/delta)^(1:k - 1) / (delta * (1 - (1 - 1/delta)^k))
+      y <- which(runif(1) < cumsum(r_pmf))[1] + x - 1
+
+      # repeat {
+      #   x <- which(runif(1) < node_probstart[leaf_node, ])[1]
+      #   y <- min(x + rgeom(1, 1/delta), L)
+      #   if ((!(sum(node_mat[leaf_node, x:y])==0 |
+      #          sum(node_mat[leaf_node, -(x:y)])==0)) &
+      #       (!node_eff_R[leaf_node, 2])) {
+      #     break
+      #   } else if ((!(sum(node_mat[leaf_node, x:y])==0)) &
+      #              node_eff_R[leaf_node, 2]) {
+      #     break
+      #   }
+      # }
       
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
