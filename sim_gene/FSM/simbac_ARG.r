@@ -85,14 +85,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       # recombination event
       leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool, 1])
 
-      #print(effective_R(node_mat[leaf_node, ], delta, rho,
-      #      node_eff_R[leaf_node, 2]))
-      #print(node_mat[leaf_node, ])
-      #print(node_eff_R[leaf_node, 2])
       repeat {
         x <- which(runif(1) < node_probstart[leaf_node, ])[1]
         y <- min(x + rgeom(1, 1/delta), L)
-        #print(c(x, y))
         if ((!(sum(node_mat[leaf_node, x:y])==0 |
                sum(node_mat[leaf_node, -(x:y)])==0)) &
             (!node_eff_R[leaf_node, 2])) {
@@ -102,7 +97,6 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
           break
         }
       }
-      #print("-----")
       
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
 
