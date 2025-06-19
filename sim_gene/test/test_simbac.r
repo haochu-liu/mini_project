@@ -13,7 +13,7 @@ source("sim_gene/ARG_igraph.r")
 
 
 set.seed(100)
-ARG <- simbac_ARG(5, 1, 10, 5, output_eff_R = TRUE)
+ARG <- simbac_ARG(5, 1, 10, 5, output_eff_R = TRUE, optimise_site = TRUE)
 ARG_matrix <- as.matrix(ARG$edge[, c(1, 2)])
 g <- graph_from_edgelist(ARG_matrix, directed = FALSE)
 g <- delete_vertices(g, V(g)[degree(g) == 0])

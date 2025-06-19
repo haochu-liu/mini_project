@@ -10,8 +10,12 @@ effective_R <- function(mat, delta, rho, clonal, include_site=NULL) {
 
   L <- length(mat)
   if (L < 2) {
+    if (!is.null(include_site)) {
+      return(list(R_eff = 0,
+                  probstartcum=rep(0, length(include_site))))
+    }
     return(list(R_eff = 0,
-                probstartcum=cumsum(rep(0, L))))
+                probstartcum=rep(0, L)))
   }
 
   R <- rho / L
