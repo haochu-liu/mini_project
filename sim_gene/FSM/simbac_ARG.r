@@ -95,9 +95,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
         v_e <- which(node_mat[leaf_node, ] &
           (node_mat[leaf_node, ] != c(node_mat[leaf_node, ][2:L], 0)))
         v_e <- c(v_e[length(v_e)] - L, v_e)
-        k <- min(L - (v_s[site_index] - v_e[site_index]), L - x + 1)
-      } else {k <- L - x + 1}
-      r_pmf <- (1 - 1/delta)^(1:k - 1) / (delta * (1 - (1 - 1/delta)^k))
+        s <- min(L - (v_s[site_index] - v_e[site_index]), L - x + 1)
+      } else {s <- L - x + 1}
+      r_pmf <- (1 - 1/delta)^(1:s - 1) / (delta * (1 - (1 - 1/delta)^s))
       y <- which(runif(1) < cumsum(r_pmf))[1] + x - 1
 
       # repeat {
