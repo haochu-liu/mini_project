@@ -11,7 +11,7 @@ source("sim_gene/effective_R.r")
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
+simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, optimise_site=FALSE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -44,6 +44,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
   node_index <- n + 1
   pool <- as.integer(1:n)
   next_node <- as.integer(n+1)
+  if (optimise_site) {include_site <- rep(TRUE, L)}
 
   while (k > 1) {
     # sample a new event time
@@ -70,8 +71,13 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       
       # update effective R
       node_eff_R[node_index, 2] <- any(as.logical(node_eff_R[leaf_node, 2]))
-      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
-                                node_eff_R[node_index, 2])
+      if (optimise_site) {
+        list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
+                                  node_eff_R[node_index, 2], include_site=include_site)
+      } else {
+        list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
+                                  node_eff_R[node_index, 2])
+      }
       node_eff_R[node_index, 1] <- list_eff_R$R_eff
       node_probstart[node_index, ] <- list_eff_R$probstartcum
       
@@ -81,6 +87,24 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
       pool <- c(setdiff(pool, leaf_node), next_node)
       next_node <- next_node + 1L
       k <- k - 1
+
+      if (!optimise_site) {
+        # check if contain exclude sites
+        include_site_index <- which(include_site)
+        for (i in 1:sum(include_site)) {
+          if (sum(node_mat[pool, include_site_index[i]]) == 1) {
+            include_site[include_site_index[i]] <- FALSE
+            for (j in pool) {
+              list_eff_R <- effective_R(node_mat[j, site_include], delta, rho,
+                                        node_eff_R[j, 2],
+                                        include_site=include_site)
+              node_eff_R[j, 1] <- list_eff_R$R_eff
+              node_probstart[j, ] <- list_eff_R$probstartcum
+            }
+          }
+        }
+      }
+
     } else {
       # recombination event
       leaf_node <- sample(pool, size=1, replace=FALSE, prob=node_eff_R[pool, 1])
@@ -129,14 +153,24 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE) {
 
       # update effective R
       node_eff_R[node_index, 2] <- FALSE
-      list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
-                                node_eff_R[node_index, 2])
+      if (optimise_site) {
+        list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
+                                  node_eff_R[node_index, 2], include_site=include_site)
+      } else {
+        list_eff_R <- effective_R(node_mat[node_index, ], delta, rho,
+                                  node_eff_R[node_index, 2])
+      }
       node_eff_R[node_index, 1] <- list_eff_R$R_eff
       node_probstart[node_index, ] <- list_eff_R$probstartcum
 
       node_eff_R[node_index+1, 2] <- node_eff_R[leaf_node, 2]
-      list_eff_R <- effective_R(node_mat[node_index+1, ], delta, rho,
-                                node_eff_R[node_index+1, 2])
+      if (optimise_site) {
+        list_eff_R <- effective_R(node_mat[node_index+1, ], delta, rho,
+                                  node_eff_R[node_index+1, 2], include_site=include_site)
+      } else {
+        list_eff_R <- effective_R(node_mat[node_index+1, ], delta, rho,
+                                  node_eff_R[node_index+1, 2])
+      }
       node_eff_R[node_index+1, 1] <- list_eff_R$R_eff
       node_probstart[node_index+1, ] <- list_eff_R$probstartcum
 

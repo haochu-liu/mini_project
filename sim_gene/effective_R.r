@@ -3,7 +3,11 @@
 #' Compute the effective recombination rate,
 #' and provide the probability of recombination initiating sites
 #' Output: Effective recombination rate, cum sum of initiating sites probability
-effective_R <- function(mat, delta, rho, clonal) {
+effective_R <- function(mat, delta, rho, clonal, include_site=NULL) {
+  if (!is.null(include_site)) {
+    mat <- mat[include_site]
+  }
+
   L <- length(mat)
   if (L < 2) {
     return(list(R_eff = 0,
@@ -35,6 +39,11 @@ effective_R <- function(mat, delta, rho, clonal) {
   }
   
   if (sum(probstart) != 0) {probstart <- probstart / sum(probstart)}
+  if (!is.null(include_site)) {
+    full_probstart <- rep(0, length(include_site))
+    full_probstart[include_site] <- probstart
+    probstart <- full_probstart
+  }
   
   return(list(R_eff = R_eff,
               probstartcum=cumsum(probstart)))
