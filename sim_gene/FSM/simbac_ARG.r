@@ -44,7 +44,11 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
   node_index <- n + 1
   pool <- as.integer(1:n)
   next_node <- as.integer(n+1)
-  if (optimise_site) {include_site <- rep(TRUE, L)}
+  if (optimise_site) {
+    include_site <- rep(TRUE, L)
+  } else {
+    include_site <- NULL
+  }
 
   while (k > 1) {
     # sample a new event time
