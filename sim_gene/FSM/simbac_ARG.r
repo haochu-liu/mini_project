@@ -88,7 +88,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
       next_node <- next_node + 1L
       k <- k - 1
 
-      if (optimise_site) {
+      if (optimise_site & any(include_site)) {
         # check if contain exclude sites
         include_site_index <- which(include_site)
         for (i in 1:sum(include_site)) {
