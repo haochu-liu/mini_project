@@ -163,7 +163,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
              edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
              node_height=node_height[1:(node_index-1)],
              node_mat=node_mat[1:(node_index-1), ],
-             node_clonal=node_clonal,
+             node_clonal=node_clonal[1:(node_index-1)],
              waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
              bacteria=bacteria, delta=delta)
   class(ARG) <- "sim_FSM_ARG"
