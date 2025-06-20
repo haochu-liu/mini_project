@@ -84,9 +84,9 @@ ggplot(time_plot, aes(x=rho, y=t, color=func)) +
                               "simbac_ARG(optimise_site=T)"="yellow")) +
   facet_grid(n ~ delta) +
   labs(
-    title = "Time by Recombination Rates",
+    title = "Running time for different ARG simulation methods",
     x = "rho",
-    y = "time",
+    y = "log time",
     color = "function"
   ) +
   scale_y_continuous(trans='log10') +
