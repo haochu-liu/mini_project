@@ -10,7 +10,7 @@
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
 sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
-                        optimise_recomb=FALSE, clonal=FALSE) {
+                        optimise_recomb=FALSE, clonal=FALSE, edgeMat=TRUE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -47,10 +47,9 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
   probstartcum <- cumsum(probstart)
 
   # Initialize variables and vector
-  edge_index <- 1
-  node_index <- n + 1
+  edge_index <- 1L
+  node_index <- as.integer(n + 1)
   pool <- as.integer(1:n)
-  next_node <- as.integer(n+1)
 
   while (k > 1) {
     # sample a new event time
@@ -64,7 +63,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
       leaf_node <- sample(pool, size=2, replace=FALSE)
 
       # append edges
-      edge_matrix[c(edge_index, edge_index+1), 1] <- next_node
+      edge_matrix[c(edge_index, edge_index+1), 1] <- node_index
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
       edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
       edge_mat_index[c(edge_index, edge_index+1)] <- leaf_node
@@ -80,10 +79,9 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
       }
       
       # updates for iteration
-      edge_index <- edge_index + 2
-      node_index <- node_index + 1
-      pool <- c(setdiff(pool, leaf_node), next_node)
-      next_node <- next_node + 1L
+      edge_index <- edge_index + 2L
+      node_index <- node_index + 1L
+      pool <- c(setdiff(pool, leaf_node), node_index)
       k <- k - 1
     } else {
       # recombination event
@@ -127,7 +125,7 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
         node_mat[node_index+1, x:L] <- node_mat[leaf_node, x:L]
       }
       # append edges
-      edge_matrix[c(edge_index, edge_index+1), 1] <- c(next_node, next_node+1L)
+      edge_matrix[c(edge_index, edge_index+1), 1] <- c(node_index, node_index+1L)
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
       edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
 
@@ -141,14 +139,13 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
       }
 
       # updates for iteration
-      edge_index <- edge_index + 2
-      node_index <- node_index + 2
-      pool <- c(setdiff(pool, leaf_node), next_node, next_node+1L)
-      next_node <- next_node + 2L
+      edge_index <- edge_index + 2L
+      node_index <- node_index + 2L
+      pool <- c(setdiff(pool, leaf_node), node_index, node_index+1L)
       k <- k + 1
     }
     k_vector <- c(k_vector, k)
-    if (max(edge_index, next_node, node_index) >= node_max - 1) {
+    if (max(edge_index, node_index) >= node_max - 1) {
       # add empty rows or elements if more edges than expected
       edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=3))
       edge_mat_index <- c(edge_mat_index, rep(NA, node_max))

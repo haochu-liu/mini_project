@@ -23,4 +23,3 @@ object.size(sparse_mat_1)
 object.size(full_mat_1)
 
 
-

@@ -40,10 +40,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
   node_probstart[1:n, ] <- matrix(cumsum(rep(1/L, L)), nrow=n, ncol=L, byrow=TRUE)
 
   # Initialize variables and vector
-  edge_index <- 1
-  node_index <- n + 1
+  edge_index <- 1L
+  node_index <- as.integer(n + 1)
   pool <- as.integer(1:n)
-  next_node <- as.integer(n+1)
   if (optimise_site) {
     include_site <- rep(TRUE, L)
   } else {
@@ -63,7 +62,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
       leaf_node <- sample(pool, size=2, replace=FALSE)
 
       # append edges
-      edge_matrix[c(edge_index, edge_index+1), 1] <- next_node
+      edge_matrix[c(edge_index, edge_index+1), 1] <- node_index
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
       edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
       edge_mat_index[c(edge_index, edge_index+1)] <- leaf_node
@@ -86,10 +85,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
       node_probstart[node_index, ] <- list_eff_R$probstartcum
       
       # updates for iteration
-      edge_index <- edge_index + 2
-      node_index <- node_index + 1
-      pool <- c(setdiff(pool, leaf_node), next_node)
-      next_node <- next_node + 1L
+      edge_index <- edge_index + 2L
+      node_index <- node_index + 1L
+      pool <- c(setdiff(pool, leaf_node), node_index)
       k <- k - 1
 
       if (optimise_site & any(include_site)) {
@@ -148,7 +146,7 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
       node_mat[node_index+1, -(x:y)] <- node_mat[leaf_node, -(x:y)]
       
       # append edges
-      edge_matrix[c(edge_index, edge_index+1), 1] <- c(next_node, next_node+1L)
+      edge_matrix[c(edge_index, edge_index+1), 1] <- c(node_index, node_index+1L)
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
       edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
 
@@ -179,14 +177,13 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
       node_probstart[node_index+1, ] <- list_eff_R$probstartcum
 
       # updates for iteration
-      edge_index <- edge_index + 2
-      node_index <- node_index + 2
-      pool <- c(setdiff(pool, leaf_node), next_node, next_node+1L)
-      next_node <- next_node + 2L
+      edge_index <- edge_index + 2L
+      node_index <- node_index + 2L
+      pool <- c(setdiff(pool, leaf_node), node_index, node_index+1L)
       k <- k + 1
     }
     k_vector <- c(k_vector, k)
-    if (max(edge_index, next_node, node_index) >= node_max - 1) {
+    if (max(edge_index, node_index) >= node_max - 1) {
       # add empty rows or elements if more edges than expected
       edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=3))
       edge_mat_index <- c(edge_mat_index, rep(NA, node_max))
