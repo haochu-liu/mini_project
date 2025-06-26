@@ -1,0 +1,90 @@
+---
+title: "Site Number Limitation"
+author: "Haochu"
+format: revealjs
+editor: visual
+execute:
+  error: true
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(Matrix)
+setwd("../")
+source("sim_gene/FSM/sim_FSM_ARG.r")
+source("sim_gene/FSM/simbac_ARG.r")
+set.seed(100)
+```
+
+# Maximal Number of Sites
+
+## `sim_FSM_ARG`
+
+```{r}
+#| echo: true
+arg1 <- sim_FSM_ARG(100, 10, 1e6, bacteria = TRUE, delta = 10,
+                    optimise_recomb = TRUE, edgemat = FALSE)
+dim(arg1$node_mat)
+```
+
+```{r}
+#| echo: true
+arg1 <- sim_FSM_ARG(100, 10, 5e6, bacteria = TRUE, delta = 10,
+                    optimise_recomb = TRUE, edgemat = FALSE)
+```
+
+## `simbac_ARG.r`
+
+```{r}
+#| echo: true
+arg2 <- simbac_ARG(100, 10, 1e6, 10, edgemat = FALSE)
+dim(arg2$node_mat)
+```
+
+```{r}
+#| echo: true
+arg2 <- simbac_ARG(100, 10, 5e6, 10, edgemat = FALSE)
+```
+
+## How to Solve
+
+To make the functions work for 5 million base pairs, we could
+- Decrease the rows of matrix by fewer leaf lineages
+- Decrease the columns of matrix by linkage
+- Sparse matrix using `Matrix::Matrix(..., sparse=TRUE)`
+- Store matrix in disk rather than RAM with `bigmemory::big.matrix()`
+- Use high performance computer
+
+## Problem in sparse matrix
+
+```{r}
+#| echo: true
+object.size(arg1$node_mat)
+sparse_mat <- as(arg1$node_mat, "sparseMatrix")
+object.size(sparse_mat)
+```
+
+## Problem in sparse matrix
+
+```{r}
+#| echo: true
+rows <- c(1, 3, 2, 5)
+cols <- c(2, 4, 1, 3)
+values <- c(1, 1, 1, 1)
+sparseMat <- sparseMatrix(i = rows, j = cols, x = values, dims = c(5, 4))
+print(sparseMat)
+fullMat <- as.matrix(sparseMat)
+print(fullMat)
+```
+
+## Problem in sparse matrix
+
+```{r}
+#| echo: true
+object.size(sparseMat)
+object.size(fullMat)
+```
+
+

@@ -86,9 +86,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE,
       node_probstart[node_index, ] <- list_eff_R$probstartcum
       
       # updates for iteration
+      pool <- c(setdiff(pool, leaf_node), node_index)
       edge_index <- edge_index + 2L
       node_index <- node_index + 1L
-      pool <- c(setdiff(pool, leaf_node), node_index)
       k <- k - 1
 
       if (optimise_site & any(include_site)) {
@@ -178,9 +178,9 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE,
       node_probstart[node_index+1, ] <- list_eff_R$probstartcum
 
       # updates for iteration
+      pool <- c(setdiff(pool, leaf_node), node_index, node_index+1L)
       edge_index <- edge_index + 2L
       node_index <- node_index + 2L
-      pool <- c(setdiff(pool, leaf_node), node_index, node_index+1L)
       k <- k + 1
     }
     k_vector <- c(k_vector, k)

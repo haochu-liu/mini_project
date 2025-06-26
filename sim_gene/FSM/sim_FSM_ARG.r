@@ -79,9 +79,9 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
       }
       
       # updates for iteration
+      pool <- c(setdiff(pool, leaf_node), node_index)
       edge_index <- edge_index + 2L
       node_index <- node_index + 1L
-      pool <- c(setdiff(pool, leaf_node), node_index)
       k <- k - 1
     } else {
       # recombination event
@@ -139,9 +139,9 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
       }
 
       # updates for iteration
+      pool <- c(setdiff(pool, leaf_node), node_index, node_index+1L)
       edge_index <- edge_index + 2L
       node_index <- node_index + 2L
-      pool <- c(setdiff(pool, leaf_node), node_index, node_index+1L)
       k <- k + 1
     }
     k_vector <- c(k_vector, k)
