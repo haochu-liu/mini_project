@@ -10,7 +10,7 @@
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
 sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
-                        optimise_recomb=FALSE, clonal=FALSE, edgeMat=TRUE) {
+                        optimise_recomb=FALSE, clonal=FALSE, edgemat=TRUE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -156,13 +156,22 @@ sim_FSM_ARG <- function(n, rho, L, bacteria=FALSE, delta=NULL, node_max=1000,
     }
   }
 
-  ARG = list(edge=edge_matrix[1:(edge_index-1), ],
-             edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
-             node_height=node_height[1:(node_index-1)],
-             node_mat=node_mat[1:(node_index-1), ],
-             node_clonal=node_clonal[1:(node_index-1)],
-             waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
-             bacteria=bacteria, delta=delta)
+  if (edgemat) {
+    ARG = list(edge=edge_matrix[1:(edge_index-1), ],
+               edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
+               node_height=node_height[1:(node_index-1)],
+               node_mat=node_mat[1:(node_index-1), ],
+               node_clonal=node_clonal[1:(node_index-1)],
+               waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
+               bacteria=bacteria, delta=delta)
+  } else {
+    ARG = list(edge=edge_matrix[1:(edge_index-1), ],
+               node_height=node_height[1:(node_index-1)],
+               node_mat=node_mat[1:(node_index-1), ],
+               node_clonal=node_clonal[1:(node_index-1)],
+               waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
+               bacteria=bacteria, delta=delta)
+  }
   class(ARG) <- "sim_FSM_ARG"
   return(ARG)
 }

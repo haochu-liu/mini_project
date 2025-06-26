@@ -11,7 +11,8 @@ source("sim_gene/effective_R.r")
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, bacteria recombination or not, and parameter delta
-simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, optimise_site=FALSE) {
+simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE,
+                       optimise_site=FALSE, edgemat=TRUE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -195,21 +196,34 @@ simbac_ARG <- function(n, rho, L, delta, node_max=1000, output_eff_R=FALSE, opti
     }
   }
 
-  if (output_eff_R) {
+  if (output_eff_R & edgemat) {
     ARG = list(edge=edge_matrix[1:(edge_index-1), ],
-             edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
-             node_height=node_height[1:(node_index-1)],
-             node_mat=node_mat[1:(node_index-1), ],
-             waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
-             delta=delta, node_eff_R=node_eff_R[1:(node_index-1), ],
-             node_probstart=node_probstart[1:(node_index-1), ])
+               edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
+               node_height=node_height[1:(node_index-1)],
+               node_mat=node_mat[1:(node_index-1), ],
+               waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
+               delta=delta, node_eff_R=node_eff_R[1:(node_index-1), ],
+               node_probstart=node_probstart[1:(node_index-1), ])
+  } else if (edgemat) {
+    ARG = list(edge=edge_matrix[1:(edge_index-1), ],
+               edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
+               node_height=node_height[1:(node_index-1)],
+               node_mat=node_mat[1:(node_index-1), ],
+               waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
+               delta=delta)
+  } else if (output_eff_R) {
+    ARG = list(edge=edge_matrix[1:(edge_index-1), ],
+               node_height=node_height[1:(node_index-1)],
+               node_mat=node_mat[1:(node_index-1), ],
+               waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
+               delta=delta, node_eff_R=node_eff_R[1:(node_index-1), ],
+               node_probstart=node_probstart[1:(node_index-1), ])
   } else {
     ARG = list(edge=edge_matrix[1:(edge_index-1), ],
-             edge_mat=node_mat[edge_mat_index[1:(edge_index-1)], ],
-             node_height=node_height[1:(node_index-1)],
-             node_mat=node_mat[1:(node_index-1), ],
-             waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
-             delta=delta)
+               node_height=node_height[1:(node_index-1)],
+               node_mat=node_mat[1:(node_index-1), ],
+               waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
+               delta=delta)
   }
   class(ARG) <- "sim_FSM_ARG"
   return(ARG)
