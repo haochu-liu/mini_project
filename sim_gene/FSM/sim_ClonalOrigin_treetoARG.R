@@ -8,29 +8,27 @@
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, and parameter delta
-sim_ClonalOrigin_treetoARG <- function(n, rho, L, delta, node_max=1000, edgemat=TRUE) {
+sim_ClonalOrigin_treetoARG <- function(n, rho, L, delta, edgemat=TRUE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
     stop("Number of sites must be an integer")
-  } else if (n >= node_max) {
-    stop("Maximal node size must greater than the number of leaf lineages")
   }
   
   k = n
   t_sum <- 0
   
-  edge_matrix <- matrix(NA, nrow=node_max, ncol=3) # root and leaf nodes, length
-  colnames(edge_matrix) <- c("node1", "node2", "length")
-  node_height <- rep(NA, node_max)                 # node height to recent time
-  node_height[1:n] <- 0                            # initialize first n nodes
+  clonal_edge <- matrix(NA, nrow=2*(n-1), ncol=3) # root and leaf nodes, length
+  colnames(clonal_edge) <- c("node1", "node2", "length")
+  clonal_node_height <- rep(NA, 2*n-1)            # node height to recent time
+  clonal_node_height[1:n] <- 0                    # initialize first n nodes
   
   # Initialize variables and vector
   edge_index <- 1L
   node_index <- as.integer(n + 1)
   pool <- as.integer(1:n)
   
-  # Clonal Tree by coalescent only
+  # clonal tree by coalescent only
   while (k > 1) {
     # sample a new event time
     event_time <- rexp(1, rate=k*(k-1+rho)/2)
@@ -39,26 +37,24 @@ sim_ClonalOrigin_treetoARG <- function(n, rho, L, delta, node_max=1000, edgemat=
     leaf_node <- sample(pool, size=2, replace=FALSE)
     
     # append edges
-    edge_matrix[c(edge_index, edge_index+1), 1] <- node_index
-    edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
-    edge_matrix[c(edge_index, edge_index+1), 3] <- t_sum-node_height[leaf_node]
+    clonal_edge[c(edge_index, edge_index+1), 1] <- node_index
+    clonal_edge[c(edge_index, edge_index+1), 2] <- leaf_node
+    clonal_edge[c(edge_index, edge_index+1), 3] <- t_sum-clonal_node_height[leaf_node]
     
     # append root node
-    node_height[node_index] <- t_sum
+    clonal_node_height[node_index] <- t_sum
     
     # updates for iteration
     pool <- c(setdiff(pool, leaf_node), node_index)
     edge_index <- edge_index + 2L
     node_index <- node_index + 1L
     k <- k - 1
-
-    if (max(edge_index, node_index) >= node_max - 1) {
-      # add empty rows or elements if more edges than expected
-      edge_matrix <- rbind(edge_matrix, matrix(NA, nrow=node_max, ncol=3))
-      node_height <- c(node_height, rep(NA, node_max))
-      node_max <- 2 * node_max
-    }
   }
+  
+  # number of recombination edges
+  l <- sum(clonal_edge[, 3])
+  n_recomb <- rpois(1, rho*l/2) # num of recombs | l ~ Poisson(rho*l/2)
+  
   
   if (edgemat) {
     ARG = list(edge=edge_matrix[1:(edge_index-1), ],
