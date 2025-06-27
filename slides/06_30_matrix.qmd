@@ -51,11 +51,16 @@ arg2 <- simbac_ARG(100, 10, 5e6, 10, edgemat = FALSE)
 ## How to Solve
 
 To make the functions work for 5 million base pairs, we could
-- Decrease the rows of matrix by fewer leaf lineages
-- Decrease the columns of matrix by linkage
-- Sparse matrix using `Matrix::Matrix(..., sparse=TRUE)`
-- Store matrix in disk rather than RAM with `bigmemory::big.matrix()`
-- Use high performance computer
+
+-   Decrease the rows of matrix by fewer leaf lineages
+
+-   Decrease the columns of matrix by linkage
+
+-   Sparse matrix using `Matrix::Matrix(..., sparse=TRUE)`
+
+-   Store matrix in disk rather than RAM with `bigmemory::big.matrix()`
+
+-   Use high performance computer
 
 ## Problem in sparse matrix
 
@@ -86,5 +91,3 @@ print(fullMat)
 object.size(sparseMat)
 object.size(fullMat)
 ```
-
-

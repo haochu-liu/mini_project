@@ -8,8 +8,7 @@
 #' Output: edge dataframe, node dataframe, waiting time for each event,
 #' total time, number of lineages at each event time, number of leaf alleles,
 #' recombination parameter, and parameter delta
-sim_ClonalOrigin_ARG <- function(n, rho, L, delta, node_max=1000,
-                                 optimise_recomb=FALSE, edgemat=TRUE) {
+sim_ClonalOrigin_treetoARG <- function(n, rho, L, delta, node_max=1000, edgemat=TRUE) {
   if (n!=as.integer(n)) {
     stop("Sample size must be an integer")
   } else if (L!=as.integer(L)) {
@@ -19,7 +18,6 @@ sim_ClonalOrigin_ARG <- function(n, rho, L, delta, node_max=1000,
   }
   
   k = n
-  k_vector <- c(k)
   t <- vector("numeric", length = 0) # vector of event times
   t_sum <- 0
   
@@ -81,15 +79,15 @@ sim_ClonalOrigin_ARG <- function(n, rho, L, delta, node_max=1000,
       
       x <- which(runif(1) < probstartcum)[1]
       y <- min(x + rgeom(1, 1/delta), L)
-
+      
       if (optimise_recomb & (sum(node_mat[leaf_node, x:y])==0)) {next}
-
+      
       edge_mat_index[c(edge_index, edge_index+1)] <- c(node_index, node_index+1)
-        
+      
       node_mat[c(node_index, node_index+1), ] <- 0
       node_mat[node_index, x:y] <- node_mat[leaf_node, x:y]
       node_mat[node_index+1, -(x:y)] <- node_mat[leaf_node, -(x:y)]
-
+      
       # append edges
       edge_matrix[c(edge_index, edge_index+1), 1] <- c(node_index, node_index+1L)
       edge_matrix[c(edge_index, edge_index+1), 2] <- leaf_node
