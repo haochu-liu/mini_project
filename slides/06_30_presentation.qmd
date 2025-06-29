@@ -5,23 +5,152 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
 ```{r}
-1 + 1
+#| label: load-packages
+#| include: false
+
+library(ggplot2)
+library(microbenchmark)
+library(patchwork)
+library(sdprisk)
+library(devtools)
+install("C:/Users/u2008181/simARG")
 ```
 
-You can add options to executable code like this
+## Simulation Using `ClonalOrigin` Algorithm
+
+### ARG Height
+
+Compare heights of simulated ARGs from `simbac_ARG(optimise_site=F)`, `FSM_ARG(optimise_recomb=T)`, `FSM_ARG(optimise_recomb=F)`, `ClonalOrigin_ARG(optimise_recomb=F)`, `ClonalOrigin_ARG(optimise_recomb=T)`.
 
 ```{r}
-#| echo: false
-2 * 2
+#| echo: true
+time_df <- data.frame(time=rep(NA, 5000),
+                      func=c(rep("FSM_ARG(optimise_recom=T)", 1000),
+                             rep("FSM_ARG(optimise_recom=F)", 1000),
+                             rep("simbac_ARG(optimise_site=F)", 1000),
+                             rep("ClonalOrigin_ARG(optimise_recomb=F)", 1000),
+                             rep("ClonalOrigin_ARG(optimise_recomb=T)", 1000)))
+
+set.seed(10)
+for (i in 1:1000) {
+  
+  r <- simARG::FSM_ARG(100L, 5, 100L, bacteria = TRUE, delta = 5,
+                   node_max = 100000, optimise_recomb = TRUE)
+  time_df$time[i] <- r$sum_time
+  
+  r <- simARG::FSM_ARG(100L, 5, 100L, bacteria = TRUE, delta = 5,
+                   node_max = 100000, optimise_recomb = FALSE)
+  time_df$time[1000+i] <- r$sum_time
+  
+  r <- simARG::simbac_ARG(100L, 5, 100L, 5, node_max = 100000)
+  time_df$time[2000+i] <- r$sum_time
+  
+  r <- simARG::ClonalOrigin_ARG(100L, 5, 100L, 5, node_max = 100000)
+  time_df$time[3000+i] <- r$sum_time
+  
+  r <- simARG::ClonalOrigin_ARG(100L, 5, 100L, 5, node_max = 100000, optimise_recomb = TRUE)
+  time_df$time[4000+i] <- r$sum_time
+  
+  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
+}
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+#| echo: true
+ggplot(time_df, aes(x=func, y=time, fill=func)) +
+  geom_violin(width=1, alpha=0.5) +
+  geom_boxplot(width=0.1, color="black", alpha=0.2) +
+  labs(title = "# of leaf lineages = 100, rho = 5",
+       x = "Functions",
+       y = "ARG height") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 16),
+    axis.text.x = element_blank(),
+    axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(size = 12),
+    legend.title = element_text(size = 16),
+    legend.text = element_text(size = 12)
+  )
+```
+
+### `ClonalOrigin_ARG` Local Tree
+
+Simulate full ARG by `ClonalOrigin_ARG(optimise_recomb=F)` and examine its height of local trees with the hypo-exponential distribution.
+
+```{r}
+#| echo: true
+height_t_df <- data.frame(s1=rep(NA, 1000),
+                          s50=rep(NA, 1000),
+                          s80=rep(NA, 1000))
+set.seed(10)
+for (i in 1:1000) {
+  ARG <- simARG::ClonalOrigin_ARG(100L, 5, 100L, 5, node_max = 100000)
+  tree1 <- simARG::local_tree(ARG, 1L)
+  tree50 <- simARG::local_tree(ARG, 50L)
+  tree80 <- simARG::local_tree(ARG, 80L)
+  height_t_df$s1[i] <- tree1$sum_time
+  height_t_df$s50[i] <- tree50$sum_time
+  height_t_df$s80[i] <- tree80$sum_time
+  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
+}
+```
+
+```{r}
+#| echo: true
+n <- 100
+height_rate <- n:2 * (n-1):1 / 2
+height_density <- function(x) {
+  dhypoexp(x, rate=height_rate)
+}
+
+hist1 <- ggplot(height_t_df, aes(x = s1)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 fill = "lightgreen",
+                 color = "black",
+                 alpha = 0.7) +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 1",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+hist2 <- ggplot(height_t_df, aes(x = s50)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 fill = "lightgreen",
+                 color = "black",
+                 alpha = 0.7) +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 50",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+hist3 <- ggplot(height_t_df, aes(x = s80)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 fill = "lightgreen",
+                 color = "black",
+                 alpha = 0.7) +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 80",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+combined_hist <- hist1 + hist2 + hist3
+combined_hist <- combined_hist +
+  plot_annotation(
+    title = "simARG::ClonalOrigin_ARG(100L, 5, 100L, 5)")
+print(combined_hist)
+```
