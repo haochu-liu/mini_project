@@ -245,7 +245,14 @@ Haochu
 </section>
 <section id="how-to-solve" class="slide level2">
 <h2>How to Solve</h2>
-<p>To make the functions work for 5 million base pairs, we could - Decrease the rows of matrix by fewer leaf lineages - Decrease the columns of matrix by linkage - Sparse matrix using <code>Matrix::Matrix(..., sparse=TRUE)</code> - Store matrix in disk rather than RAM with <code>bigmemory::big.matrix()</code> - Use high performance computer</p>
+<p>To make the functions work for 5 million base pairs, we could</p>
+<ul>
+<li><p>Decrease the rows of matrix by fewer leaf lineages</p></li>
+<li><p>Decrease the columns of matrix by linkage</p></li>
+<li><p>Sparse matrix using <code>Matrix::Matrix(..., sparse=TRUE)</code></p></li>
+<li><p>Store matrix in disk rather than RAM with <code>bigmemory::big.matrix()</code></p></li>
+<li><p>Use high performance computer</p></li>
+</ul>
 </section>
 <section id="problem-in-sparse-matrix" class="slide level2">
 <h2>Problem in sparse matrix</h2>
