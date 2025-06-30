@@ -1,0 +1,130 @@
+---
+title: "Boolean matrix"
+author: "Haochu"
+format: pdf
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(Matrix)
+source("../sim_gene/FSM/sim_FSM_ARG.r")
+set.seed(100)
+```
+
+## Numerical matrix and boolean matrix
+
+### Toy example
+
+We define a toy example as below. And we compare numerical and boolean matrices from build-in `matrix` and package `Matrix`.
+
+**Build-in matrix:**
+
+```{r}
+#| echo: true
+base_numeric <- matrix(c(1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0),
+                       nrow = 3, byrow = TRUE)
+base_logical <- as.logical(base_numeric)
+base_logical <- matrix(base_logical,
+                       nrow=nrow(base_numeric), ncol=ncol(base_numeric))
+
+print(base_numeric)
+print(base_logical)
+```
+
+**`Matrix` package:**
+
+```{r}
+#| echo: true
+Matrix_dense <- Matrix(c(1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0),
+                       nrow = 3)
+class(Matrix_dense)
+print(Matrix_dense)
+```
+
+```{r}
+#| echo: true
+getClass("nMatrix")
+
+Matrix_ngeMatrix <- as(Matrix_dense, "nMatrix")
+class(Matrix_ngeMatrix)
+print(Matrix_ngeMatrix)
+```
+
+```{r}
+#| echo: true
+Matrix_ngCMatrix <- as(Matrix_ngeMatrix, "CsparseMatrix")
+class(Matrix_ngCMatrix)
+print(Matrix_ngCMatrix)
+```
+
+Now, we get this table for matrix sizes
+
+```{r}
+#| echo: true
+#| code-fold: true
+toy_sizes <- data.frame(
+  Class = c("base numerical", "base logical", "Matrix numerical",
+            "Matrix logical dense", "Matrix logical sparse"),
+  Size = c(object.size(base_numeric), object.size(base_logical),
+           object.size(Matrix_dense), object.size(Matrix_ngeMatrix),
+           object.size(Matrix_ngCMatrix))
+)
+colnames(toy_sizes)[2] <- "Size(bytes)"
+
+knitr::kable(toy_sizes)
+```
+
+### Matrix for ancestral material
+
+```{r}
+#| echo: true
+arg <- sim_FSM_ARG(100, 10, 1e6, bacteria = TRUE, delta = 10,
+                    optimise_recomb = TRUE, edgemat = FALSE)
+dim(arg$node_mat)
+```
+
+**Build-in matrix:**
+
+```{r}
+#| echo: true
+arg_base_numeric <- arg$node_mat
+arg_base_logical <- as.logical(arg_base_numeric)
+arg_base_logical <- matrix(arg_base_logical,
+                           nrow=nrow(arg_base_numeric),
+                           ncol=ncol(arg_base_numeric))
+```
+
+**`Matrix` package:**
+
+```{r}
+#| echo: true
+arg_Matrix_dense <- Matrix(arg_base_numeric)
+arg_Matrix_ngeMatrix <- as(arg_Matrix_dense, "nMatrix")
+arg_Matrix_ngCMatrix <- as(arg_Matrix_ngeMatrix, "CsparseMatrix")
+```
+
+```{r}
+#| echo: true
+#| code-fold: true
+arg_sizes <- data.frame(
+  Class = c("base numerical", "base logical", "Matrix numerical",
+            "Matrix logical dense", "Matrix logical sparse"),
+  Size = c(object.size(arg_base_numeric), object.size(arg_base_logical),
+           object.size(arg_Matrix_dense), object.size(arg_Matrix_ngeMatrix),
+           object.size(arg_Matrix_ngCMatrix))
+)
+colnames(arg_sizes)[2] <- "Size(bytes)"
+
+knitr::kable(arg_sizes)
+```
+
+### Conclusion
+
+-   `Matrix` package works better for large matrix.
+
+-   A logical (pattern) matrix can half the memory cost.
+
+-   `ngCMatrix` (sparse subclass for `nMatrix`) has smallest size.
