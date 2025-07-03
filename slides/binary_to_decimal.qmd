@@ -27,7 +27,7 @@ Convert every 10 binary elements to a numerical element:
 
 ```{r}
 #| echo: true
-num10_matrix <- matrix(as.integer(2^10), nrow=500, ncol=50000)
+num10_matrix <- matrix(as.integer(sum(2^(0:9))), nrow=500, ncol=50000)
 
 object.size(num10_matrix)
 object.size(num10_matrix) / (500 * 5e5)
@@ -37,7 +37,7 @@ Convert every 20 binary elements to a numerical element:
 
 ```{r}
 #| echo: true
-num20_matrix <- matrix(as.integer(2^20), nrow=500, ncol=25000)
+num20_matrix <- matrix(as.integer(sum(2^(0:19))), nrow=500, ncol=25000)
 
 object.size(num20_matrix)
 object.size(num20_matrix) / (500 * 5e5)
@@ -48,7 +48,7 @@ Convert every 30 binary elements to a numerical element:
 ```{r}
 #| echo: true
 print(log2(.Machine$integer.max))
-num30_matrix <- matrix(as.integer(2^30), nrow=500, ncol=16667)
+num30_matrix <- matrix(as.integer(sum(2^(0:29))), nrow=500, ncol=16667)
 
 object.size(num30_matrix)
 object.size(num30_matrix) / (500 * 5e5)
