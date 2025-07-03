@@ -1,0 +1,66 @@
+---
+title: "Binary to decimal matrix"
+author: "Haochu"
+format: html
+editor: visual
+---
+
+## Convert binary rows into decimal
+
+Let's consider a matrix to store $500 \times 500000$ binary numbers.
+
+The binary matrix size:
+
+```{r}
+#| echo: true
+int_matrix <- matrix(1L, nrow=500, ncol=5e5)
+bool_matrix <- matrix(T, nrow=500, ncol=5e5)
+
+object.size(int_matrix)
+object.size(bool_matrix)
+
+object.size(int_matrix) / (500 * 5e5)
+object.size(bool_matrix) / (500 * 5e5)
+```
+
+Convert every 10 binary elements to a numerical element:
+
+```{r}
+#| echo: true
+num10_matrix <- matrix(as.integer(2^10), nrow=500, ncol=50000)
+
+object.size(num10_matrix)
+object.size(num10_matrix) / (500 * 5e5)
+```
+
+Convert every 20 binary elements to a numerical element:
+
+```{r}
+#| echo: true
+num20_matrix <- matrix(as.integer(2^20), nrow=500, ncol=25000)
+
+object.size(num20_matrix)
+object.size(num20_matrix) / (500 * 5e5)
+```
+
+Convert every 30 binary elements to a numerical element:
+
+```{r}
+#| echo: true
+print(log2(.Machine$integer.max))
+num30_matrix <- matrix(as.integer(2^30), nrow=500, ncol=16667)
+
+object.size(num30_matrix)
+object.size(num30_matrix) / (500 * 5e5)
+```
+
+So, to store $5000000$ binary numbers at every row of a matrix in a ROM of 5GB
+
+```{r}
+#| echo: true
+print(paste0("Boolean / integer: ", 5e9/(5e6 * 4), " rows"))
+print(paste0("To int every 10 elements: ", 5e9/(5e6 * 0.4), " rows"))
+print(paste0("To int every 20 elements: ", 5e9/(5e6 * 0.2), " rows"))
+print(paste0("To int every 30 elements: ", 5e9/(5e6 * 0.1), " rows"))
+```
+
