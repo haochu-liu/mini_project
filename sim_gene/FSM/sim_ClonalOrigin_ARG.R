@@ -52,8 +52,8 @@ sim_ClonalOrigin_ARG <- function(n, rho, L, delta, node_max=1000,
     if (p_coale == 1) {
       # coalescent event
       leaf_node <- sample(pool, size=2, replace=FALSE)
-      if (!any(node_clonal[leaf_node])) {
-        leaf_node[2] <- sample(pool[node_clonal[pool]], size=1, replace=FALSE)
+      while (!any(node_clonal[leaf_node])) {
+        leaf_node <- sample(pool, size=2, replace=FALSE)
       }
       
       # append edges
@@ -136,6 +136,6 @@ sim_ClonalOrigin_ARG <- function(n, rho, L, delta, node_max=1000,
                waiting_time=t, sum_time=t_sum, k=k_vector, n=n, rho=rho, L=L,
                delta=delta)
   }
-  class(ARG) <- "sim_FSM_ARG"
+  class(ARG) <- "FSM_ARG"
   return(ARG)
 }

@@ -11,7 +11,9 @@ editor: visual
 
 library(ggplot2)
 library(devtools)
+library(sdprisk)
 install("C:/Users/u2008181/simARG")
+set.seed(10)
 ```
 
 ## Convert Binary Rows into Decimal
@@ -81,6 +83,10 @@ print(paste0("To int every 30 elements: ", 5e9/(5e6 * 0.1), " rows"))
 #| echo: true
 ARG <- simARG::FSM_ARG.decimal(100L, 10, 5e6L, bacteria = TRUE, delta = 10,
                                optimise_recomb = TRUE)
+```
+
+```{r}
+#| echo: true
 dim(ARG$node_mat)
 print(paste0(object.size(ARG$node_mat)/1e9, "GB"))
 ```
@@ -95,9 +101,82 @@ print(paste0(object.size(ARG$node_mat)/1e9, "GB"))
 
 ## ClonalOrigin Local Tree
 
+```{r}
+#| echo: true
+height_t_df <- data.frame(s1=rep(NA, 2000),
+                          s50=rep(NA, 2000),
+                          s80=rep(NA, 2000),
+                          type=c(rep("ARG-based", 1000), rep("Tree-based", 1000)))
 
+for (i in 1:1000) {
+  ARG <- simARG::ClonalOrigin_ARG(100L, 5, 100L, 5, optimise_recomb=TRUE)
+  Clonaltree <- simARG::ClonalOrigin(100L, 5, 100L, 5)
+  tree1 <- simARG::local_tree(ARG, 1L)
+  tree50 <- simARG::local_tree(ARG, 50L)
+  tree80 <- simARG::local_tree(ARG, 80L)
+  height_t_df$s1[i] <- tree1$sum_time
+  height_t_df$s50[i] <- tree50$sum_time
+  height_t_df$s80[i] <- tree80$sum_time
+  height_t_df$s1[i+1000] <- simARG::local_height_ClonalOrigin(Clonaltree, 1)
+  height_t_df$s50[i+1000] <- simARG::local_height_ClonalOrigin(Clonaltree, 50)
+  height_t_df$s80[i+1000] <- simARG::local_height_ClonalOrigin(Clonaltree, 80)
+  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
+}
+```
 
+```{r}
+#| echo: true
+n <- 100
+height_rate <- n:2 * (n-1):1 / 2
+height_density <- function(x) {
+  dhypoexp(x, rate=height_rate)
+}
 
-
-
-
+hist1 <- ggplot(height_t_df, aes(x = s1, fill = type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 1",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+hist2 <- ggplot(height_t_df, aes(x = s50, fill = type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 50",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+hist3 <- ggplot(height_t_df, aes(x = s80, fill = type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Locat tree at site 80",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+# combined_hist <- hist1 + hist2 + hist3
+# combined_hist <- combined_hist +
+#   plot_annotation(
+#     title = "Compare two ClonalOrigin methods")
+# print(combined_hist)
+```

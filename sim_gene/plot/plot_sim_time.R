@@ -111,7 +111,7 @@ install("C:/Users/u2008181/simARG")
 rho_values <-  seq(5, 30, by = 5)
 func_vec <- c("FSM_ARG(optimise=T)", "FSM_ARG(optimise=T, clonal=T)",
               "simbac_ARG(optimise_site=F)", "simbac_ARG(optimise_site=T)",
-              "ClonalOrigin_ARG(optimise=F)")
+              "ClonalOrigin_ARG(optimise=T)")
 time_df <- expand.grid(
   t = NA,
   rho = rho_values,
@@ -155,11 +155,10 @@ for (i in 1:nrow(time_df)) {
       )
       time_vec[j] <- time_result["elapsed"]
     }
-  } else if (func_str == "ClonalOrigin_ARG(optimise=F)") {
-    if (rho > 15) {next}
+  } else if (func_str == "ClonalOrigin_ARG(optimise=T)") {
     for (j in 1:10) {
       time_result <- system.time(
-        simARG::ClonalOrigin_ARG(n, rho, 100L, delta, node_max = 100000)
+        simARG::ClonalOrigin_ARG(n, rho, 100L, delta, node_max = 100000, optimise_recomb = TRUE)
       )
       time_vec[j] <- time_result["elapsed"]
     }
