@@ -1,13 +1,24 @@
 ---
-title: "Binary to decimal matrix"
+title: "Decimal matrix and ClonalOrigin"
 author: "Haochu"
 format: html
 editor: visual
 ---
 
-## Convert binary rows into decimal
+```{r}
+#| label: load-packages
+#| include: false
 
-Let's consider a matrix to store $500 \times 500000$ binary numbers.
+library(ggplot2)
+library(devtools)
+install("C:/Users/u2008181/simARG")
+```
+
+## Convert Binary Rows into Decimal
+
+### Example Matrix
+
+Consider a matrix to store $500 \times 500000$ binary numbers.
 
 The binary matrix size:
 
@@ -63,4 +74,30 @@ print(paste0("To int every 10 elements: ", 5e9/(5e6 * 0.4), " rows"))
 print(paste0("To int every 20 elements: ", 5e9/(5e6 * 0.2), " rows"))
 print(paste0("To int every 30 elements: ", 5e9/(5e6 * 0.1), " rows"))
 ```
+
+### Apply to `FSM_ARG`
+
+```{r}
+#| echo: true
+ARG <- simARG::FSM_ARG.decimal(100L, 10, 5e6L, bacteria = TRUE, delta = 10,
+                               optimise_recomb = TRUE)
+dim(ARG$node_mat)
+print(paste0(object.size(ARG$node_mat)/1e9, "GB"))
+```
+
+### Other Optimisation Methods
+
+-   Boolean matrix: only half the matrix size, we want $\frac{1}{5}$.
+
+-   `bigmemory` package: slow and not work for $5 \times 10^6$.
+
+-   Continuous intervals: haven't tried, but might not work for SimBac method.
+
+## ClonalOrigin Local Tree
+
+
+
+
+
+
 
