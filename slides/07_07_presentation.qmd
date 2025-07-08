@@ -93,7 +93,7 @@ print(paste0(object.size(ARG$node_mat)/1e9, "GB"))
 
 ### Other Optimisation Methods
 
--   Boolean matrix: only half the matrix size, we want $\frac{1}{5}$.
+-   Boolean matrix: only half the matrix size, we want at least $\frac{1}{5}$.
 
 -   `bigmemory` package: slow and not work for $5 \times 10^6$.
 
