@@ -121,3 +121,64 @@ histClonal <- ggplot(height_df, aes(x = clonal, fill = type)) +
   scale_fill_manual(values = c("ARG-based"="blue", "Tree-based"="red")) +
   theme_minimal()
 ```
+
+```{r}
+#| echo: true
+print(hist1)
+print(hist2)
+print(hist3)
+print(histClonal)
+```
+
+```{r}
+#| echo: true
+local_height1 <- data.frame(height=c(height_df$s1[1:1000],
+                                     height_df$s50[1:1000],
+                                     height_df$s80[1:1000]),
+                            site=c(rep("1", 1000),
+                                   rep("50", 1000),
+                                   rep("80", 1000)))
+
+histCompare1 <- ggplot(local_height1, aes(x = height, fill = site)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree height values from ARG-based method",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+
+local_height2 <- data.frame(height=c(height_df$s1[1001:2000],
+                                     height_df$s50[1001:2000],
+                                     height_df$s80[1001:2000]),
+                            site=c(rep("1", 1000),
+                                   rep("50", 1000),
+                                   rep("80", 1000)))
+
+histCompare2 <- ggplot(local_height2, aes(x = height, fill = site)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree height values from tree-based method",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+```
+
+```{r}
+#| echo: true
+print(histCompare1)
+print(histCompare2)
+```
