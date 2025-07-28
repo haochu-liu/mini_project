@@ -12,7 +12,7 @@ editor: visual
 library(ggplot2)
 library(sdprisk)
 library(remotes)
-install_github("haochu-liu/simARG", upgrade="never")
+# install_github("haochu-liu/simARG", upgrade="never")
 library(simARG)
 set.seed(13)
 ```
