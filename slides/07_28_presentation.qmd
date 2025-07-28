@@ -1,0 +1,358 @@
+---
+title: "Sequential ClonalOrigin"
+author: "Haochu"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-packages
+#| include: false
+
+library(ggplot2)
+library(sdprisk)
+library(remotes)
+install_github("haochu-liu/simARG", upgrade="never")
+library(simARG)
+set.seed(13)
+```
+
+## Sequential ClonalOrigin
+
+### Example function for first and last sites in recombinations
+
+`recomb_info1` simulates the recombination events and their segment positions by tree-based method.
+```{r}
+#| echo: true
+recomb_info1 <- function(tree_length, L, rho_s, delta) {
+  rho <- rho_s * L
+  n_recomb <- rpois(1, rho*tree_length/2)
+  probstart <- rep(1, L)
+  probstart[1] <- delta
+  probstart <- probstart / sum(probstart)
+  probstartcum <- cumsum(probstart)
+  recomb_pos <- matrix(NA, nrow=n_recomb, ncol=2)
+
+  for (i in 1:n_recomb) {
+    recomb_pos[i, 1] <- which(runif(1) < probstartcum)[1]
+    recomb_pos[i, 2] <- min(recomb_pos[i, 1] + rgeom(1, 1/delta), L)
+  }
+
+  return(recomb_pos)
+}
+```
+
+
+`recomb_info2` simulates the recombination events and their segment positions by sequential method.
+```{r}
+#| echo: true
+recomb_info2 <- function(tree_length, L, rho_s, delta) {
+  rho <- rho_s * L
+  recomb_pos <- matrix(NA, nrow=1000, ncol=2)
+  recomb_num <- 0
+  for (i in 1:L) {
+    if (i == 1) {
+      R_new <- rpois(1, rho_s*delta*tree_length/2)
+      R_old <- 0
+    } else {
+      survive_index <- which(recomb_pos[1:recomb_num, 2] == (i-1))
+      R_new <- rpois(1, rho_s*tree_length/2)
+      if (length(survive_index) >= 0) {
+        R_old <- rbinom(1, length(survive_index), (1 - 1/delta))
+        if (length(survive_index) == 1) {
+          remain_index <- survive_index
+        } else {
+          remain_index <- sample(survive_index, R_old)
+        }
+      } else {
+        R_old <- 0
+      }
+    }
+
+    if (R_new > 0) {
+      recomb_pos[(recomb_num+1):(recomb_num+R_new), ] <- i
+    }
+
+    if (R_old > 0) {
+      recomb_pos[remain_index, 2] <- i
+    }
+
+    recomb_num <- recomb_num + R_new
+  }
+
+  return(recomb_pos[1:recomb_num, ])
+}
+```
+
+
+We run both functions 1000 times to check if the simulations are equivalent.
+```{r}
+#| echo: true
+tree_length <- 2
+L <- 100
+rho_s <- 10 / L
+delta <- 20
+start_pos <- data.frame(
+  method1 = rep(0, 100),
+  method2 = rep(0, 100)
+)
+segment_length1 <- c()
+segment_length2 <- c()
+for (i in 1:1000) {
+  m1 <- recomb_info1(tree_length, L, rho_s, delta)
+  m2 <- recomb_info2(tree_length, L, rho_s, delta)
+
+  if (nrow(m1) > 0) {
+    t1 <- as.data.frame(table(m1[, 1]))
+    t1_index <- as.numeric(as.character(t1[, 1]))
+    start_pos$method1[t1_index] <- start_pos$method1[t1_index] + t1[, 2]
+    segment_length1 <- c(segment_length1, m1[, 2] - m1[, 1])
+  }
+
+  if (nrow(m2) > 0) {
+    t2 <- as.data.frame(table(m2[, 1]))
+    t2_index <- as.numeric(as.character(t2[, 1]))
+    start_pos$method2[t2_index] <- start_pos$method2[t2_index] + t2[, 2]
+    segment_length2 <- c(segment_length2, m2[, 2] - m2[, 1])
+  }
+}
+```
+
+
+The plot below shows the number of recombinations starting at each site in 1000 simulations.
+```{r}
+#| echo: true
+start_pos$y <- 1:100
+ggplot() +
+  geom_point(data = start_pos,
+             aes(x = y, y = method1),
+             color = "darkblue", size = 3, shape = 16, alpha = 0.5) +
+
+  geom_point(data = start_pos,
+             aes(x = y, y = method2),
+             color = "darkred", size = 3, shape = 17, alpha = 0.5) +
+
+  geom_line(data = start_pos,
+            aes(x = y, y = method1),
+            color = "darkblue", linetype = "solid", linewidth = 1.2, alpha = 0.5) +
+
+  geom_line(data = start_pos,
+            aes(x = y, y = method2),
+            color = "darkred", linetype = "solid", linewidth = 1.2, alpha = 0.5) +
+
+  labs(
+    title = "Number of recombinations starting at each site",
+    x = "Starting position",
+    y = "Number of recombinations"
+  ) +
+  theme_minimal()
+```
+
+
+The histogram compares the distribution of recombination segment length in both methods.
+```{r}
+#| echo: true
+segment_df <- data.frame(
+  seg = c(segment_length1, segment_length2),
+  method = c(rep("Tree-based", length(segment_length1)), rep("Sequential", length(segment_length2)))
+)
+ggplot(segment_df, aes(x = seg, fill = method)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  labs(title = "Segment length",
+       x = "Length",
+       y = "Density") +
+  scale_fill_manual(values = c("Tree-based"="darkblue", "Sequential"="darkred")) +
+  theme_minimal()
+```
+
+
+### ClonalOrigin functions
+
+Compare the ARG-based, tree-based and sequential methods.
+```{r}
+#| echo: true
+height_df <- data.frame(s1=rep(NA, 3000),
+                        s50=rep(NA, 3000),
+                        s80=rep(NA, 3000),
+                        arg=rep(NA, 3000),
+                        clonal=rep(NA, 3000),
+                        type=c(rep("ARG-based", 1000),
+                               rep("Tree-based", 1000),
+                               rep("Tree-seq", 1000)))
+
+for (i in 1:1000) {
+  ARG <- ClonalOrigin_ARG_based(100L, 0.1, 100L, 30, optimise_recomb=TRUE)
+  tree1 <- local_tree(ARG, 1L)
+  tree50 <- local_tree(ARG, 50L)
+  tree80 <- local_tree(ARG, 80L)
+  clonal_tree_ARG <- clonal_tree_FSM(ARG)
+  height_df$s1[i] <- tree1$sum_time
+  height_df$s50[i] <- tree50$sum_time
+  height_df$s80[i] <- tree80$sum_time
+  height_df$clonal[i] <- clonal_tree_ARG$sum_time
+  height_df$arg[i] <- ARG$sum_time
+  ARG <- ClonalOrigin_tree_based(100L, 0.1, 100L, 30)
+  tree1 <- local_tree(ARG, 1L)
+  tree50 <- local_tree(ARG, 50L)
+  tree80 <- local_tree(ARG, 80L)
+  clonal_tree_ARG <- clonal_tree_FSM(ARG)
+  height_df$s1[i+1000] <- tree1$sum_time
+  height_df$s50[i+1000] <- tree50$sum_time
+  height_df$s80[i+1000] <- tree80$sum_time
+  height_df$clonal[i+1000] <- clonal_tree_ARG$sum_time
+  height_df$arg[i+1000] <- ARG$sum_time
+  ARG <- ClonalOrigin_tree_seq(100L, 0.1, 100L, 30)
+  tree1 <- local_tree(ARG, 1L)
+  tree50 <- local_tree(ARG, 50L)
+  tree80 <- local_tree(ARG, 80L)
+  clonal_tree_ARG <- clonal_tree_FSM(ARG)
+  height_df$s1[i+2000] <- tree1$sum_time
+  height_df$s50[i+2000] <- tree50$sum_time
+  height_df$s80[i+2000] <- tree80$sum_time
+  height_df$clonal[i+2000] <- clonal_tree_ARG$sum_time
+  height_df$arg[i+2000] <- ARG$sum_time
+  if (i%%100 == 0) {print(paste("Complete", i, "iterations"))}
+}
+```
+
+```{r}
+#| echo: true
+n <- 100
+height_rate <- n:2 * (n-1):1 / 2
+height_density <- function(x) {
+  dhypoexp(x, rate=height_rate)
+}
+
+ggplot(height_df, aes(x = s1, fill = type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree at site 1",
+       x = "Height",
+       y = "Density") +
+  scale_fill_manual(values = c("ARG-based"="blue", "Tree-based"="red", "Tree-seq"="green")) +
+  theme_minimal()
+ggplot(height_df, aes(x = s50, fill = type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree at site 50",
+       x = "Height",
+       y = "Density") +
+  scale_fill_manual(values = c("ARG-based"="blue", "Tree-based"="red", "Tree-seq"="green")) +
+  theme_minimal()
+ggplot(height_df, aes(x = s80, fill = type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree at site 80",
+       x = "Height",
+       y = "Density") +
+  scale_fill_manual(values = c("ARG-based"="blue", "Tree-based"="red", "Tree-seq"="green")) +
+  theme_minimal()
+ggplot(height_df, aes(x = clonal, fill = type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Clonal tree",
+       x = "Height",
+       y = "Density") +
+  scale_fill_manual(values = c("ARG-based"="blue", "Tree-based"="red", "Tree-seq"="green")) +
+  theme_minimal()
+```
+
+```{r}
+local_height1 <- data.frame(height=c(height_df$s1[1:1000],
+                                     height_df$s50[1:1000],
+                                     height_df$s80[1:1000]),
+                            site=c(rep("1", 1000),
+                                   rep("50", 1000),
+                                   rep("80", 1000)))
+
+ggplot(local_height1, aes(x = height, fill = site)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree height values from ARG-based method",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+
+local_height2 <- data.frame(height=c(height_df$s1[1001:2000],
+                                     height_df$s50[1001:2000],
+                                     height_df$s80[1001:2000]),
+                            site=c(rep("1", 1000),
+                                   rep("50", 1000),
+                                   rep("80", 1000)))
+
+ggplot(local_height2, aes(x = height, fill = site)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree height values from tree-based method",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+
+local_height3 <- data.frame(height=c(height_df$s1[2001:3000],
+                                     height_df$s50[2001:3000],
+                                     height_df$s80[2001:3000]),
+                            site=c(rep("1", 1000),
+                                   rep("50", 1000),
+                                   rep("80", 1000)))
+
+ggplot(local_height3, aes(x = height, fill = site)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 30,
+                 color = "black",
+                 alpha = 0.3,
+                 position = "identity") +
+  stat_function(fun = height_density, # Use your custom function here
+                color = "darkblue",
+                linewidth = 1.2,
+                linetype = "solid") +
+  labs(title = "Local tree height values from sequential method",
+       x = "Height",
+       y = "Density") +
+  theme_minimal()
+```

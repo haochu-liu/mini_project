@@ -12,7 +12,7 @@ editor: visual
 library(ggplot2)
 library(sdprisk)
 library(devtools)
-install("C:/Users/u2008181/simARG")
+install("C:/Users/u2008181/simARG", upgrade="never")
 set.seed(100)
 ```
 
